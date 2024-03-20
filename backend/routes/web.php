@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\GameController;
+use App\Http\Controllers\RoleController;
 use Illuminate\Foundation\Application;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
@@ -36,6 +37,9 @@ Route::middleware('auth')->group(function () {
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
 });
 
-Route::resource('game', GameController::class);
+Route::resource('games', GameController::class);
+Route::resource('tournaments', TournamentController::class);
+Route::get('permissions/initial', [RoleController::class, 'initial'])->name('permissions.initial');
+Route::resource('permissions', RoleController::class);
 
 require __DIR__.'/auth.php';
