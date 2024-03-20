@@ -14,6 +14,8 @@ use Illuminate\Support\Facades\Hash;
 use Illuminate\Validation\Rules;
 use Inertia\Inertia;
 use Inertia\Response;
+use Spatie\Permission\Models\Role;
+use Spatie\Permission\Models\Permission;
 
 class RegisteredUserController extends Controller
 {
@@ -56,7 +58,7 @@ class RegisteredUserController extends Controller
         }
 
         event(new Registered($user));
-
+        $user->assignRole('player');
         Auth::login($user);
 
         return redirect(RouteServiceProvider::HOME);

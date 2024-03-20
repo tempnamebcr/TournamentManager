@@ -66,30 +66,30 @@ class RoleController extends Controller
         //
     }
     public function initial(){
-        // $admin_role = Role::create(['name' => 'admin']);
-        // $player_role = Role::create(['name' => 'player']);
-        // $player_permissions = [
-        //     'view-tournaments',
-        //     'view-games'
-        // ];
-        // $admin_permissions = [
-        //     'create-games',
-        //     'edit-games',
-        //     'delete-games',
-        //     'create-tournaments',
-        //     'edit-tournaments',
-        //     'delete-tournaments',
-        // ];
+        $admin_role = Role::create(['name' => 'admin']);
+        $player_role = Role::create(['name' => 'player']);
+        $player_permissions = [
+            'view-tournaments',
+            'view-games'
+        ];
+        $admin_permissions = [
+            'create-games',
+            'edit-games',
+            'delete-games',
+            'create-tournaments',
+            'edit-tournaments',
+            'delete-tournaments',
+        ];
 
-        // foreach ($admin_permissions as $permission) {
-        //     Permission::create(['name' => $permission]);
-        // }
-        // foreach ($player_permissions as $permission) {
-        //     Permission::create(['name' => $permission]);
-        // }
-        // $admin_role->givePermissionTo($admin_permissions);
-        // $admin_role->givePermissionTo($player_permissions);
-        // $player_role->givePermissionTo($player_permissions);
+        foreach ($admin_permissions as $permission) {
+            Permission::create(['name' => $permission]);
+        }
+        foreach ($player_permissions as $permission) {
+            Permission::create(['name' => $permission]);
+        }
+        $admin_role->givePermissionTo($admin_permissions);
+        $admin_role->givePermissionTo($player_permissions);
+        $player_role->givePermissionTo($player_permissions);
         $players = User::where('isAdmin', false)->get();
         $admins = User::where('isAdmin', true)->get();
         foreach($admins as $admin){

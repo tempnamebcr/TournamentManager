@@ -1,5 +1,8 @@
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
 import { Head } from '@inertiajs/react';
+import { router } from '@inertiajs/react'
+import PrimaryButton from '@/Components/PrimaryButton';
+
 
 export default function Index({ auth }) {
     return (
@@ -11,6 +14,9 @@ export default function Index({ auth }) {
 
             <div className="py-12">
                 <div className="max-w-7xl mx-auto sm:px-6 lg:px-8">
+                    <div className="py-6">
+                        <PrimaryButton onClick={() => router.visit(route('games.create'))} id="add-games">Create</PrimaryButton>
+                    </div>
                     <div className="bg-white overflow-hidden shadow-sm sm:rounded-lg">
                         <div className="p-6 text-gray-900">{auth.user.username} {auth.user.image && (
                         <img src={"storage/"+auth.user.image.location} alt="User Image" width="100" height="100"/>

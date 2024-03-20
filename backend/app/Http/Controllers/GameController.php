@@ -22,7 +22,10 @@ class GameController extends Controller
      */
     public function create()
     {
-        //
+        if (auth()->user()->can('create-games')){
+            return Inertia::render('Games/Create');
+        }
+        abort(403);
     }
 
     /**
