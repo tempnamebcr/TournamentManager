@@ -4,6 +4,9 @@ namespace App\Http\Controllers;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
+use App\Models\Game;
+use App\Models\Image;
+use App\Helper\Reply;
 use Inertia\Inertia;
 use Inertia\Response;
 
@@ -14,7 +17,7 @@ class GameController extends Controller
      */
     public function index()
     {
-        return Inertia::render('Games/Index', ['status' => session('status')]);
+        return Inertia::render('Games/Index', ['status' => session('status'), 'games' => Game::all()]);
     }
 
     /**
@@ -33,7 +36,19 @@ class GameController extends Controller
      */
     public function store(Request $request)
     {
-        //
+        $game = Game::create([
+            'name' => $request->name,
+        ]);
+        if ($request->hasFile('image')) {
+            $image = $request->file('image')->getClientOriginalName();
+            $path = $request->file('image')->storeAs('avatars', $image, 'public');
+            $image = Image::create([
+                'imageable_type' => "App\Models\Game",
+                'imageable_id' => $game->id,
+                'location' => $path,
+            ]);
+        }
+        return back()->with('message', 'Jocul a fost creat cu succes!');
     }
 
     /**
@@ -41,7 +56,9 @@ class GameController extends Controller
      */
     public function show(string $id)
     {
-        //
+        //useful
+        // return Inertia::render('Event', ['event' => $event])
+        //     ->withViewData(['meta' => $event->meta]);
     }
 
     /**

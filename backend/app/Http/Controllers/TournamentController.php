@@ -4,6 +4,11 @@ namespace App\Http\Controllers;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
+use App\Models\Game;
+use App\Models\Image;
+use App\Models\Tournament;
+use Inertia\Inertia;
+use Inertia\Response;
 
 class TournamentController extends Controller
 {
@@ -12,7 +17,7 @@ class TournamentController extends Controller
      */
     public function index()
     {
-        //
+        return Inertia::render('Tournaments/Index', ['status' => session('status'), 'games' => Game::all(), 'tournaments' => Tournament::all()]);
     }
 
     /**
@@ -20,7 +25,10 @@ class TournamentController extends Controller
      */
     public function create()
     {
-        //
+        if (auth()->user()->can('create-tournaments')){
+            return Inertia::render('Tournaments/Create', ['games' => Game::all()]);
+        }
+        abort(403);
     }
 
     /**
