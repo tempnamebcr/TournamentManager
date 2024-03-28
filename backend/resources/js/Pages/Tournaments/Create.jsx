@@ -6,6 +6,7 @@ import TextInput from '@/Components/TextInput';
 import { Head, Link, useForm } from '@inertiajs/react';
 import { usePage } from '@inertiajs/react';
 import React, { useState } from "react";
+import Checkbox from '@/Components/Checkbox';
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
 import 'react-time-picker/dist/TimePicker.css';
@@ -19,15 +20,17 @@ export default function Create({ auth, games }) {
 
     const { data, setData, post, processing, errors, reset } = useForm({
         name: '',
-        date: '',
+        date: new Date(),
         type: '',
+        game: null,
+        recurrent: false,
+        fee: null,
         hour: '10:00',
         image: '',
     });
     const submit = (e) => {
         e.preventDefault();
-        console.log(flash);
-        post(route('games.store'));
+        post(route('tournaments.store'));
     };
 
     return (
@@ -61,13 +64,12 @@ export default function Create({ auth, games }) {
                             <select
                                 id="game"
                                 name="game"
-                                value={data.name}
+                                value={data.game}
                                 className="mt-1 block w-full"
-                                autoComplete="game"
-                                isFocused={true}
                                 onChange={(e) => setData('game', e.target.value)}
                                 required
                             >
+                                <option value="0">select</option>
                             {games.map((game)=>{
                                 return <option value={game.id}>{game.name}</option>
                             })}
@@ -112,6 +114,33 @@ export default function Create({ auth, games }) {
                                 {flash.message}
                             </div>
                         )}
+
+                        <div>
+                            <InputLabel htmlFor="fee" value="Fee" />
+                            <TextInput
+                                id="fee"
+                                name="fee"
+                                type="number"
+                                value={data.fee}
+                                className="mt-1 block w-full"
+                                autoComplete="fee"
+                                isFocused={true}
+                                onChange={(e) => setData('fee', e.target.value)}
+                                required
+                            />
+
+                            <InputError message={errors.fee} className="mt-2" />
+                        </div>
+                        <div className="block mt-4">
+                            <label className="flex items-center">
+                                <Checkbox
+                                    name="recurrent"
+                                    checked={data.recurrent}
+                                    onChange={(e) => setData('recurrent', e.target.checked)}
+                                />
+                                <span className="ms-2 text-sm text-gray-600">Recurrent</span>
+                            </label>
+                        </div>
 
                         <div className="flex items-center justify-end mt-4">
 

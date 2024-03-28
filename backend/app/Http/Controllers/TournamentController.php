@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Events\TournamentCreated;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\Game;
@@ -36,7 +37,40 @@ class TournamentController extends Controller
      */
     public function store(Request $request)
     {
-        //
+        if ($request->type == 'Single') {
+            $winnable_type = "App\Models\User";
+            $prize = $request->fee * 1.9;
+        }
+        else if ($request->type == "Team") {
+            $winnable_type = "App\Models\Team";
+            $prize = $request->fee * 9;
+        }
+        else {
+            $winnable_type = "App\Models\RandomTournamentTeam";
+            $prize = $request->fee * 3.6;
+        }
+        $pattern = '/^(\d{4})-(\d{2})-(\d{2})T(\d{2}):(\d{2}):(\d{2})\.\d+Z$/';
+        if (preg_match($pattern, $request->date, $matches)) {
+            $formattedDate = $matches[1] . '-' . $matches[2] . '-' . $matches[3] . ' ' . $matches[4] . ':' . $matches[5] . ':' . $matches[6];
+        }
+
+        $tournament = Tournament::create([
+            'name' => $request->name,
+            'game_id' => $request->game,
+            'date' => $formattedDate,
+            'hour' => $request->hour,
+            'participation_fee' => $request->fee,
+            'type' => $request->type,
+            'winnable_id' => 0,
+            'admin_id' => auth()->user()->id,
+            'prize' => $prize,
+            'winnable_type' => $winnable_type,
+            'is_recurrent' => $request->recurrent,
+        ]);
+
+        event(new TournamentCreated($tournament->name, $tournament->id));
+
+        return back()->with('message', 'Turneul a fost creat cu succes!');
     }
 
     /**

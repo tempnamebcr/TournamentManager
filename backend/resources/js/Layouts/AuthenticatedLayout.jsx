@@ -1,4 +1,6 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+import useScript from '../Hooks/useScript';
+import useLink from '../Hooks/useLink';
 import ApplicationLogo from '@/Components/ApplicationLogo';
 import Dropdown from '@/Components/Dropdown';
 import NavLink from '@/Components/NavLink';
@@ -6,8 +8,31 @@ import ResponsiveNavLink from '@/Components/ResponsiveNavLink';
 import { Link } from '@inertiajs/react';
 
 export default function Authenticated({ user, header, children }) {
-    const [showingNavigationDropdown, setShowingNavigationDropdown] = useState(false);
 
+    const [showingNavigationDropdown, setShowingNavigationDropdown] = useState(false);
+    useScript("https://js.pusher.com/8.2.0/pusher.min.js");
+    useScript("https://code.jquery.com/jquery-3.7.1.js");
+    useScript("https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js");
+    useLink("stylesheet", "https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.css");
+    //pusher
+    useEffect(() => {
+        if (window.Pusher) {
+            window.Pusher.logToConsole = true;
+
+            const pusher = new window.Pusher('5381343c4eba40b19064', {
+                cluster: 'eu'
+            });
+
+            const channel = pusher.subscribe('tournament-channel');
+            channel.bind('tournament-created', function(data) {
+                toastr.success(JSON.stringify(data));
+            });
+
+            return () => {
+                pusher.disconnect();
+            };
+        }
+    }, []);
     return (
         <div className="min-h-screen bg-gray-100">
             <nav className="bg-white border-b border-gray-100">
@@ -127,5 +152,6 @@ export default function Authenticated({ user, header, children }) {
 
             <main>{children}</main>
         </div>
+
     );
 }
