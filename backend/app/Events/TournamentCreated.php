@@ -14,16 +14,14 @@ class TournamentCreated implements ShouldBroadcast
 {
     use Dispatchable, InteractsWithSockets, SerializesModels;
 
-    public $name;
-    public $tournament_id;
+    public $tournament;
 
     /**
      * Create a new event instance.
      */
-    public function __construct($name, $tournament_id)
+    public function __construct($tournament)
     {
-        $this->name = $name;
-        $this->tournament_id = $tournament_id;
+        $this->tournament = $tournament;
     }
 
     /**

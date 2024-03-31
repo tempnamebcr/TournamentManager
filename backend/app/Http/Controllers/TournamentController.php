@@ -68,7 +68,7 @@ class TournamentController extends Controller
             'is_recurrent' => $request->recurrent,
         ]);
 
-        event(new TournamentCreated($tournament->name, $tournament->id));
+        event(new TournamentCreated($tournament));
 
         return back()->with('message', 'Turneul a fost creat cu succes!');
     }

@@ -6,18 +6,21 @@ import DataTable from 'react-data-table-component';
 
 const columns = [
 	{
-		name: 'Title',
-		selector: row => row.title,
+		name: 'name',
+		selector: row => row.name,
 	},
 	{
-		name: 'Year',
-		selector: row => row.year,
+		name: 'game',
+		selector: row => row.game.name
 	},
 	{
-		name: 'edit',
-		selector: row => row.edit,
+		name: 'date',
+		selector: row => row.date.split(/\s+/)[0],
 	},
-    ,
+	{
+		name: 'hour',
+		selector: row => row.hour,
+	},
     {
         cell: (row) => <button onClick={() => handleDelete(row.id)}>Delete</button>,
         ignoreRowClick: true,
@@ -27,22 +30,8 @@ const handleDelete = (id) => {
     console.log('Row with ID:', id, 'deleted');
 };
 
-const data = [
-  	{
-		id: 1,
-		title: 'Beetlejuice',
-		edit: '<h1>Beetlejuice</h1>',
-		year: '1988',
-	},
-	{
-		id: 2,
-		title: 'Ghostbusters',
-		edit: '<h1>Beetlejuice</h1>',
-		year: '1984',
-	},
-]
 
-export default function Index({ auth }) {
+export default function Index({ auth, tournaments }) {
     return (
         <AuthenticatedLayout
             user={auth.user}
@@ -58,7 +47,7 @@ export default function Index({ auth }) {
                     <div className="bg-white overflow-hidden shadow-sm sm:rounded-lg">
                         <DataTable
                             columns={columns}
-                            data={data}
+                            data={tournaments}
                             selectableRows
                             pagination
                         />
@@ -68,3 +57,5 @@ export default function Index({ auth }) {
         </AuthenticatedLayout>
     );
 }
+
+

@@ -11,9 +11,11 @@ class Tournament extends Model
     use HasFactory;
     protected $guarded = [];
 
-    public function game(): HasOne
+    protected $with = ['game'];
+
+    public function game()
     {
-        return $this->hasOne(Game::class);
+        return $this->belongsTo(Game::class);
     }
     public function users()
     {
