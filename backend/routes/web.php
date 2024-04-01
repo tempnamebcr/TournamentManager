@@ -1,5 +1,7 @@
 <?php
 
+use App\Http\Controllers\Admin\UserController;
+use App\Http\Controllers\FriendController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\GameController;
 use App\Http\Controllers\TournamentController;
@@ -38,6 +40,8 @@ Route::middleware('auth')->group(function () {
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
 });
 
+Route::resource('users', UserController::class);
+Route::resource('friends', FriendController::class);
 Route::resource('games', GameController::class);
 Route::resource('tournaments', TournamentController::class);
 Route::get('permissions/initial', [RoleController::class, 'initial'])->name('permissions.initial');

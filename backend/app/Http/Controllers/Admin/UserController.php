@@ -3,7 +3,9 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Models\User;
 use Illuminate\Http\Request;
+use Inertia\Inertia;
 
 class UserController extends Controller
 {
@@ -12,7 +14,11 @@ class UserController extends Controller
      */
     public function index()
     {
-        //
+        $user = User::where("id", auth()->user()->id)->first();
+        $friends = $user->friends_ids();
+        $pendingFriendReq = $user->pending_friend_requests_ids();
+        $friendsReqSent = $user->pending_friend_requests_sent();
+        return Inertia::render('Users/Index', ['status' => session('status'), 'users' => User::where('id', '!=', $user->id)->get(), 'friends' => $friends, 'reqSentTo' => $friendsReqSent, 'pending' => $pendingFriendReq]);
     }
 
     /**
