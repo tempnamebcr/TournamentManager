@@ -34,8 +34,8 @@ trait Friendable {
             return 0;
         }
         $friendship = Friend::where('requester', $requester)
-            ->where('user_requested', $this->id)
-            ->first();
+        ->where('user_requested', $this->id)
+        ->first();
         if($friendship) {
             $friendship->update([
                 'status' => 1

@@ -41,6 +41,9 @@ Route::middleware('auth')->group(function () {
 });
 
 Route::resource('users', UserController::class);
+Route::post('friends/deny/{id}', [FriendController::class, 'deny'])->name('friends.deny');
+Route::post('friends/accept/{id}', [FriendController::class, 'accept'])->name('friends.accept');
+Route::post('friends/delete/{id}', [FriendController::class, 'delete'])->name('friends.delete');
 Route::resource('friends', FriendController::class);
 Route::resource('games', GameController::class);
 Route::resource('tournaments', TournamentController::class);

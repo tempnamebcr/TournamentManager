@@ -8,6 +8,7 @@ import DataTable from 'react-data-table-component';
 
 
 export default function Index({ auth, users, friends, reqSentTo, pending }) {
+    const [currRoute, setCurrRoute] = useState('');
     const { data, setData, post, processing, errors, reset } = useForm({
         id: 0,
     });
@@ -32,8 +33,8 @@ export default function Index({ auth, users, friends, reqSentTo, pending }) {
                 if (pending.includes(row.id)) {
                     return (
                         <div>
-                            <PrimaryButton id="accept" onClick={handleAccept}>Accept</PrimaryButton>
-                            <SecondaryButton id="reject" onClick={handleReject}>Reject</SecondaryButton>
+                            <PrimaryButton id="accept" onClick={() => handleAccept(row.id)}>Accept</PrimaryButton>
+                            <SecondaryButton id="reject" onClick={ () => handleReject(row.id) }>Reject</SecondaryButton>
                         </div>
                     );
                 }
@@ -47,36 +48,15 @@ export default function Index({ auth, users, friends, reqSentTo, pending }) {
         },
     ];
 
-    const handleAccept = () => {
-        fetch('/friends/accept', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({
-                userId: row.id,
-            }),
-        })
-        .then(response => {
-        })
-        .catch(error => {
-        });
+    const handleAccept = (id) => {
+        setCurrRoute('accept');
+        setData('id', id);
     };
 
-    const handleReject = () => {
-        fetch('/friends/reject', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({
-                userId: row.id,
-            }),
-        })
-        .then(response => {
-        })
-        .catch(error => {
-        });
+    const handleReject = (id) => {
+        // fetch(route('friends.reject', { id: id }), {
+        setCurrRoute('deny');
+        setData('id', id);
     };
 
     const handleDelete = (id) => {
@@ -84,12 +64,22 @@ export default function Index({ auth, users, friends, reqSentTo, pending }) {
     };
     const addFriend = (e, id) => {
         e.preventDefault();
+        setCurrRoute('add');
         setData('id', id);
     };
 
     useEffect(() => {
+        console.log(data.id);
         if (data.id !== 0) {
-            post(route('friends.store'));
+            if(currRoute == "add"){
+                post(route('friends.store'));
+            }
+            else if(currRoute == "accept"){
+                post(route('friends.accept', {id : data.id}));
+            }
+            else if(currRoute == "deny"){
+                post(route('friends.deny', {id : data.id}));
+            }
         }
     }, [data.id]);
 

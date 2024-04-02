@@ -6,6 +6,8 @@ use App\Events\TournamentCreated;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\Game;
+use App\Models\User;
+use app\Notifications\TournamentCreatedNotification;
 use App\Models\Image;
 use App\Models\Tournament;
 use Inertia\Inertia;
@@ -53,7 +55,6 @@ class TournamentController extends Controller
         if (preg_match($pattern, $request->date, $matches)) {
             $formattedDate = $matches[1] . '-' . $matches[2] . '-' . $matches[3] . ' ' . $matches[4] . ':' . $matches[5] . ':' . $matches[6];
         }
-
         $tournament = Tournament::create([
             'name' => $request->name,
             'game_id' => $request->game,
@@ -67,9 +68,8 @@ class TournamentController extends Controller
             'winnable_type' => $winnable_type,
             'is_recurrent' => $request->recurrent,
         ]);
-
+        //for pusher
         event(new TournamentCreated($tournament));
-
         return back()->with('message', 'Turneul a fost creat cu succes!');
     }
 

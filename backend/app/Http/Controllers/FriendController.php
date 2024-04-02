@@ -79,13 +79,17 @@ class FriendController extends Controller
      * @param  \App\Models\User $user
      * @return \Illuminate\Http\Response
      */
-    public function update(Request $request, User $user) {
+    public function accept(Request $request, $id) {
+        $user = User::where('id', $id)->first();
         if (!$user) {
             return back()->withErrors(['message' => 'This user could not be found']);
         }
         auth()->user()->accept_friend($user->id);
         event(new FriendRequestAcceptedEvent($user));
         return back();
+    }
+    public function update(Request $request, $id) {
+
     }
 
     /**
@@ -94,7 +98,8 @@ class FriendController extends Controller
      * @param  \App\Models\User $user
      * @return \Illuminate\Http\Response
      */
-    public function destroy(User $user) {
+    public function delete($id) {
+        $user = User::where('id', $id)->first();
         if (!$user) {
             return back()->withErrors(['message' => 'This user could not be found']);
         }
@@ -109,7 +114,8 @@ class FriendController extends Controller
      * @param  \App\Models\User $user
      * @return \Illuminate\Http\Response
      */
-    public function deny(User $user) {
+    public function deny($id) {
+        $user = User::where('id', $id)->first();
         if (!$user) {
             return back()->withErrors(['message' => 'This user could not be found']);
         }

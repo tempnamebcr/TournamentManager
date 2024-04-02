@@ -24,6 +24,9 @@ class EventServiceProvider extends ServiceProvider
         \App\Events\FriendRequestAcceptedEvent::class => [
             \App\Listeners\FriendRequestAcceptedListener::class,
         ],
+        \App\Events\TournamentCreated::class => [
+            \App\Listeners\TournamentCreatedListener::class,
+        ],
     ];
 
     /**
