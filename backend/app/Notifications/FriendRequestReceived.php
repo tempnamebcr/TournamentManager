@@ -55,7 +55,7 @@ class FriendRequestReceived extends Notification implements ShouldQueue
         return [
             'info' => [
                 'message' => "You have received a friend request from ".$this->user->username.".",
-                // 'link' => route('profiles.show', $this->user->username),
+                'link' => '#',
                 'avatar' => $this->user->profile_photo_url,
                 'sent' => Carbon::now()
             ]

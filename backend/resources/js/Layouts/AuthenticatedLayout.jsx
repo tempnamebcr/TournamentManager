@@ -5,10 +5,12 @@ import ApplicationLogo from '@/Components/ApplicationLogo';
 import Dropdown from '@/Components/Dropdown';
 import NavLink from '@/Components/NavLink';
 import ResponsiveNavLink from '@/Components/ResponsiveNavLink';
-import { Link } from '@inertiajs/react';
+import { Link, usePage } from '@inertiajs/react';
+import Notifications from '@/Components/Notifications';
 
 export default function Authenticated({ user, header, children }) {
-
+    const { auth } = usePage().props;
+    const { notifications, readNotifications, unreadNotifications} = auth;
     const [showingNavigationDropdown, setShowingNavigationDropdown] = useState(false);
     useScript("https://js.pusher.com/8.2.0/pusher.min.js");
     useScript("https://code.jquery.com/jquery-3.7.1.js");
@@ -18,14 +20,17 @@ export default function Authenticated({ user, header, children }) {
     useEffect(() => {
         if (window.Pusher) {
             window.Pusher.logToConsole = true;
-
+            console.log('a');
+            console.log(notifications)
+            console.log(unreadNotifications)
+            console.log(readNotifications)
             const pusher = new window.Pusher('5381343c4eba40b19064', {
                 cluster: 'eu'
             });
 
             const channel = pusher.subscribe('tournament-channel');
             channel.bind('tournament-created', function(data) {
-                toastr.success(JSON.stringify(data));
+                toastr.success("A new tournament was created");
             });
 
             return () => {
@@ -63,8 +68,39 @@ export default function Authenticated({ user, header, children }) {
                                 </NavLink>
                             </div>
                         </div>
-
                         <div className="hidden sm:flex sm:items-center sm:ms-6">
+                            <div className="ms-3 relative">
+                                <Dropdown>
+                                    <Dropdown.Trigger>
+                                        <span className="inline-flex rounded-md relative">
+                                            <button
+                                                type="button"
+                                                className="inline-flex items-center px-3 py-2 border border-transparent text-sm leading-4 font-medium rounded-md text-gray-500 bg-white hover:text-gray-700 focus:outline-none transition ease-in-out duration-150"
+                                            >
+                                                <svg width="24" height="24" strokeWidth="1.5" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"> <path d="M18.1336 11C18.7155 16.3755 21 18 21 18H3C3 18 6 15.8667 6 8.4C6 6.70261 6.63214 5.07475 7.75736 3.87452C8.88258 2.67428 10.4087 2 12 2C12.3373 2 12.6717 2.0303 13 2.08949" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round"/> <path d="M19 8C20.6569 8 22 6.65685 22 5C22 3.34315 20.6569 2 19 2C17.3431 2 16 3.34315 16 5C16 6.65685 17.3431 8 19 8Z" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round"/> <path d="M13.73 21C13.5542 21.3031 13.3019 21.5547 12.9982 21.7295C12.6946 21.9044 12.3504 21.9965 12 21.9965C11.6496 21.9965 11.3054 21.9044 11.0018 21.7295C10.6982 21.5547 10.4458 21.3031 10.27 21" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round"/> </svg>
+                                                <span className="text-white text-xs bg-red-600 rounded-full px-2 py-1 absolute bottom-6 left-6">
+                                                    {unreadNotifications.length}
+                                                </span>
+                                            </button>
+                                        </span>
+                                    </Dropdown.Trigger>
+                                    {notifications.length > 0 &&
+                                        <Dropdown.Content>
+                                            <Dropdown.Link class="block px-4 py-2 text-sm leading-5 text-gray-700 hover:bg-gray-300 focus:outline-none focus:bg-gray-100 transition duration-150 ease-in-out" href="#">Mark all as read</Dropdown.Link>
+                                            <div className="border-t border-gray-100"></div>
+                                            <Notifications reads={readNotifications} unreads={unreadNotifications} />
+                                        </Dropdown.Content>
+                                    }
+                                    {
+                                        notifications.length == 0 &&
+                                        <Dropdown.Content>
+                                            <Dropdown.Link class="block px-4 py-2 text-sm leading-5 text-gray-700 hover:bg-gray-300 focus:outline-none focus:bg-gray-100 transition duration-150 ease-in-out" href="#">You have no new notifications.</Dropdown.Link>
+                                            <div className="border-t border-gray-100"></div>
+                                        </Dropdown.Content>
+                                    }
+
+                                </Dropdown>
+                            </div>
                             <div className="ms-3 relative">
                                 <Dropdown>
                                     <Dropdown.Trigger>

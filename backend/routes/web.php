@@ -6,6 +6,7 @@ use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\GameController;
 use App\Http\Controllers\TournamentController;
 use App\Http\Controllers\RoleController;
+use App\Http\Controllers\NotificationController;
 use Illuminate\Foundation\Application;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
@@ -45,6 +46,13 @@ Route::post('friends/deny/{id}', [FriendController::class, 'deny'])->name('frien
 Route::post('friends/accept/{id}', [FriendController::class, 'accept'])->name('friends.accept');
 Route::post('friends/delete/{id}', [FriendController::class, 'delete'])->name('friends.delete');
 Route::resource('friends', FriendController::class);
+Route::prefix('notifications')->name('notifications.')->group(function() {
+    Route::post('/mark-one/{id}', [NotificationController::class, 'store'])->name('store');
+    Route::get('/mark-all', [NotificationController::class, 'update'])->name('update');
+    Route::get('/mark-delete/{id}', [NotificationController::class, 'destroy'])->name('destroy');
+});
+Route::post('notifications/markAsRead/{id}', [NotificationController::class, 'markAsRead'])->name('notifications.markAsRead');
+// Route::resource('notifications', NotificationController::class);
 Route::resource('games', GameController::class);
 Route::resource('tournaments', TournamentController::class);
 Route::get('permissions/initial', [RoleController::class, 'initial'])->name('permissions.initial');

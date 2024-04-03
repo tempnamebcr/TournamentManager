@@ -2,6 +2,7 @@
 
 namespace App\Notifications;
 
+use Carbon\Carbon;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Notifications\Messages\MailMessage;
@@ -27,15 +28,18 @@ class TournamentCreatedNotification extends Notification
      */
     public function via(object $notifiable): array
     {
-        // return ['database'];
-        // return ['mail'];
-        return [''];
+        return ['database', 'mail'];
     }
 
     public function toArray($notifiable)
     {
         return [
-            'tournament_id' => $this->tournament->id,
+            'info' => [
+                'message' => ' '. $this->tournament->name,
+                'link' => '#',
+                'avatar' => '#',
+                'sent' => Carbon::now(),
+            ]
         ];
     }
 

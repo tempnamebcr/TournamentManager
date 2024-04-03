@@ -21,7 +21,7 @@ class Tournament extends Model
     {
         return $this->hasMany(User::class, 'tournament_players', 'team_id', 'user_id');
     }
-    protected $dispatchesEvents = [
-        'created' => TournamentCreated::class,
-    ];
+    // protected $dispatchesEvents = [
+    //     'created' => TournamentCreated::class,
+    // ];
 }
