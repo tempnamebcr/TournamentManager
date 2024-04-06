@@ -30,7 +30,8 @@ class FriendRequestAccepted extends Notification implements ShouldQueue
      * @return array
      */
     public function via($notifiable) {
-        return ['database', 'broadcast'];
+        //mail disabled for now
+        return ['database',  'broadcast'];
     }
 
     /**

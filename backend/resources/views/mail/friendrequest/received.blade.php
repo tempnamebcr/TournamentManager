@@ -7,7 +7,7 @@
 
 **Username:** {{ $user->username }}
 
-@component('mail::button', ['url' => route('profiles.show', $user->username)])
+@component('mail::button', ['url' => ''])
 Visit their profile
 @endcomponent
 
