@@ -25,6 +25,9 @@ const columns = [
         cell: (row) => <button onClick={() => handleDelete(row.id)}>Delete</button>,
         ignoreRowClick: true,
     },
+    {
+        cell: (row) => <button onClick={() => router.visit(route('tournaments.show', row.id))}>Join</button>,
+    },
 ];
 const handleDelete = (id) => {
     console.log('Row with ID:', id, 'deleted');

@@ -2,8 +2,10 @@
 
 namespace App\Http\Controllers;
 
+use App\Events\NewChatMessageEvent;
 use App\Events\TournamentCreated;
 use App\Http\Controllers\Controller;
+use App\Models\Message;
 use Illuminate\Http\Request;
 use App\Models\Game;
 use App\Models\User;
@@ -76,9 +78,18 @@ class TournamentController extends Controller
     /**
      * Display the specified resource.
      */
-    public function show(string $id)
+    public function show($id)
     {
-        //
+        $tournament = Tournament::where('id', $id)->first();
+        $messages = Message::where('tournament_id', $id)
+            ->with('user')
+            ->oldest()
+            ->get();
+        return Inertia::render('Tournaments/Show', [
+            'status' => session('status'),
+            'tournament' => $tournament,
+            'messages' => $messages
+        ]);
     }
 
     /**
@@ -87,6 +98,16 @@ class TournamentController extends Controller
     public function edit(string $id)
     {
         //
+    }
+    public function message(Request $request, $id)
+    {
+        $tournament = Tournament::where('id', $id)->first();
+        $message = $tournament->messages()->create([
+            'body' => $request->body,
+            'user_id' => auth()->id()
+        ]);
+        broadcast(new NewChatMessageEvent($message, auth()->user()))->toOthers();
+        return back();
     }
 
     /**
