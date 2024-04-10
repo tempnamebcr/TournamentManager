@@ -4,6 +4,7 @@ use App\Http\Controllers\Admin\UserController;
 use App\Http\Controllers\FriendController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\GameController;
+use App\Http\Controllers\TeamController;
 use App\Http\Controllers\TournamentController;
 use App\Http\Controllers\RoleController;
 use App\Http\Controllers\NotificationController;
@@ -59,5 +60,6 @@ Route::post('/tournaments/{id}/getCount', [TournamentController::class, 'getCoun
 Route::resource('tournaments', TournamentController::class);
 Route::get('permissions/initial', [RoleController::class, 'initial'])->name('permissions.initial');
 Route::resource('permissions', RoleController::class);
+Route::resource('teams', TeamController::class);
 
 require __DIR__.'/auth.php';

@@ -84,6 +84,9 @@ export default function Authenticated({ user, header, children }) {
                                 <NavLink href={route('friends.index')} active={route().current('friend')}>
                                     Friends
                                 </NavLink>
+                                <NavLink href={route('teams.index')} active={route().current('team')}>
+                                    Teams
+                                </NavLink>
                             </div>
                         </div>
                         <div className="hidden sm:flex sm:items-center sm:ms-6">

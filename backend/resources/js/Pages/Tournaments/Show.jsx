@@ -19,41 +19,24 @@ export default function Show({ tournament, auth, messages }) {
     const [users, setUsers] = useState([]);
     const [formSuccess, setFormSuccess] = useState(false);
 
+    // useEffect(() => {
+    //     const listeenChat = () => {
+    //         window.Echo.private(`tournament.${tournament.id}`)
+    //         .listen('.chat-message', (e)=>{
+    //             console.log('chat-message-cu-punct')
+    //             let newMessage = {
+    //                 body:e.message.body,
+    //                 user:e.user
+    //             }
+    //             const updatedMessages = [...messages, newMessage];
+    //             setStateMessage(updatedMessages);
+    //             messages.push(newMessage)
+    //         })
+    //     }
+    //     listeenChat()
+    // }, []);
     useEffect(() => {
-        const listeenChat = () => {
-            window.Echo.private(`tournament.${tournament.id}`)
-            .listen('.chat-message', (e)=>{
-                console.log('chat-message-cu-punct')
-                let newMessage = {
-                    body:e.message.body,
-                    user:e.user
-                }
-                const updatedMessages = [...messages, newMessage];
-                setStateMessage(updatedMessages);
-                messages.push(newMessage)
-            })
-        }
-        listeenChat()
-    }, []);
-    useEffect(() => {
-        const listeenChat = () => {
-            window.Echo.private(`tournament.${tournament.id}`)
-            .listen('.chat-message', (e)=>{
-                console.log('chat-message-cu-punct')
-                let newMessage = {
-                    body:e.message.body,
-                    user:e.user
-                }
-                console.log(stateMessage)
-                const updatedMessages = [...stateMessage, newMessage];
-                console.log(stateMessage)
-                // setStateMessage(updatedMessages);
-            })
-        }
-        listeenChat()
         const listenChat = () => {
-
-
             window.Echo.join(`tournament.${tournament.id}`)
             .here((users) => {
                 setActiveCount(users.length);
@@ -73,15 +56,16 @@ export default function Show({ tournament, auth, messages }) {
                     return updatedUsers;
                 });
             })
-            // .listen('.chat-message', (e)=>{
-            //     console.log('chat-message-cu-punct')
-            //     let newMessage = {
-            //         body:e.message.body,
-            //         user:e.user
-            //     }
-            //     const updatedMessages = [...messages, newMessage];
-            //     setStateMessage(updatedMessages);
-            // })
+            .listen('.chat-message', (e)=>{
+                console.log('chat-message-cu-punct')
+                let newMessage = {
+                    body:e.message.body,
+                    user:e.user
+                }
+                const updatedMessages = [...messages, newMessage];
+                setStateMessage(updatedMessages);
+                messages.push(newMessage)
+            })
         }
         listenChat();
         return() => {
@@ -140,8 +124,8 @@ export default function Show({ tournament, auth, messages }) {
                     <TournamentUsers users={users} />
                     </div>
 
-                    <div className="p-4 sm:p-8 bg-white shadow sm:rounded-lg">
-                        <ChatBox messages={messages} currentUser={auth.user}></ChatBox>
+                    <div className="p-4 sm:p-8 bg-white shadow sm:rounded-lg h-96">
+                        <ChatBox messages={stateMessage} currentUser={auth.user}></ChatBox>
                         <ChatInput form={form}
                             onInputChange={handleInputChange}
                             method={submitMessage}>
