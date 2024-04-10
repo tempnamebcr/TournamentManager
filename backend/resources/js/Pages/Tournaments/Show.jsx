@@ -1,6 +1,7 @@
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
 import ChatBox from '@/Components/Chat/ChatBox';
 import ChatInput from '@/Components/Chat/ChatInput';
+import TournamentUsers from '@/Components/Tournament/TournamentUsers';
 import { useState, useEffect } from 'react';
 import { Head, useForm } from '@inertiajs/react';
 import useScript from '../../Hooks/useScript';
@@ -14,38 +15,13 @@ export default function Show({ tournament, auth, messages }) {
         tournament: tournament.id,
         processing: false
     });
-
     const [activeCount, setActiveCount] = useState(0);
     const [users, setUsers] = useState([]);
     const [formSuccess, setFormSuccess] = useState(false);
 
     useEffect(() => {
-        const listeen = () => {
+        const listeenChat = () => {
             window.Echo.private(`tournament.${tournament.id}`)
-            .listen('.NewChatMessageEvent', (e) => {
-                console.log(e.user);
-                console.log(e.message);
-                console.log("qweqweqweqwe");
-                // let newMessage = {
-                //     body:e.message.body,
-                //     user:e.user
-                // }
-                // messages.push(newMessage)
-                // conso
-                console.log(newMessage);
-            })
-            .listen('.BroadcastNotificationCreated', (e)=>{
-                console.log('broadcastcupunct')
-            })
-            .listen('BroadcastNotificationCreated', (e)=>{
-                console.log('broadcastfarapunct')
-            })
-            .listen('NewChatMessageEvent', (e)=>{
-                console.log('newfarapunct')
-            })
-            .listen('chat-message', (e)=>{
-                console.log('chat-message-fara-punct')
-            })
             .listen('.chat-message', (e)=>{
                 console.log('chat-message-cu-punct')
                 let newMessage = {
@@ -54,11 +30,64 @@ export default function Show({ tournament, auth, messages }) {
                 }
                 const updatedMessages = [...messages, newMessage];
                 setStateMessage(updatedMessages);
-                console.log(stateMessage)
+                messages.push(newMessage)
             })
         }
-        listeen();
+        listeenChat()
     }, []);
+    useEffect(() => {
+        const listeenChat = () => {
+            window.Echo.private(`tournament.${tournament.id}`)
+            .listen('.chat-message', (e)=>{
+                console.log('chat-message-cu-punct')
+                let newMessage = {
+                    body:e.message.body,
+                    user:e.user
+                }
+                console.log(stateMessage)
+                const updatedMessages = [...stateMessage, newMessage];
+                console.log(stateMessage)
+                // setStateMessage(updatedMessages);
+            })
+        }
+        listeenChat()
+        const listenChat = () => {
+
+
+            window.Echo.join(`tournament.${tournament.id}`)
+            .here((users) => {
+                setActiveCount(users.length);
+                setUsers([...users]);
+            })
+            .leaving((user) => {
+                setUsers(prevUsers => {
+                    const updatedUsers = prevUsers.filter(usr => usr.username !== user.username);
+                    setActiveCount(updatedUsers.length);
+                    return updatedUsers;
+                });
+            })
+            .joining((user) => {
+                setUsers(prevUsers => {
+                    const updatedUsers = [...prevUsers, user];
+                    setActiveCount(updatedUsers.length);
+                    return updatedUsers;
+                });
+            })
+            // .listen('.chat-message', (e)=>{
+            //     console.log('chat-message-cu-punct')
+            //     let newMessage = {
+            //         body:e.message.body,
+            //         user:e.user
+            //     }
+            //     const updatedMessages = [...messages, newMessage];
+            //     setStateMessage(updatedMessages);
+            // })
+        }
+        listenChat();
+        return() => {
+            window.Echo.leave(`tournament.${tournament.id}`);
+        }
+    }, [tournament.id]);
 
     const handleInputChange = (field, value) => {
         setForm({
@@ -66,6 +95,12 @@ export default function Show({ tournament, auth, messages }) {
             [field]: value
         });
     };
+    const getActive = () => {
+        this.updateUserForm.post(this.route('chat-rooms.update', this.room), {
+            preserveScroll: true,
+            onSuccess:()=>{}
+        })
+    }
 
     const submitMessage = async (e) => {
         try {
@@ -101,10 +136,12 @@ export default function Show({ tournament, auth, messages }) {
             <div className="py-12">
                 <div className="max-w-7xl mx-auto sm:px-6 lg:px-8 space-y-6">
                     <div className="p-4 sm:p-8 bg-white shadow sm:rounded-lg">
+                    Active count : {activeCount}
+                    <TournamentUsers users={users} />
                     </div>
 
                     <div className="p-4 sm:p-8 bg-white shadow sm:rounded-lg">
-                        <ChatBox messages={stateMessage} currentUser={auth.user}></ChatBox>
+                        <ChatBox messages={messages} currentUser={auth.user}></ChatBox>
                         <ChatInput form={form}
                             onInputChange={handleInputChange}
                             method={submitMessage}>

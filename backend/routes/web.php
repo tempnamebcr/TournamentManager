@@ -55,6 +55,7 @@ Route::post('notifications/markAsRead/{id}', [NotificationController::class, 'ma
 // Route::resource('notifications', NotificationController::class);
 Route::resource('games', GameController::class);
 Route::post('/tournaments/{id}/message', [TournamentController::class, 'message'])->name('tournaments.message');
+Route::post('/tournaments/{id}/getCount', [TournamentController::class, 'getCount'])->name('tournaments.getCount');
 Route::resource('tournaments', TournamentController::class);
 Route::get('permissions/initial', [RoleController::class, 'initial'])->name('permissions.initial');
 Route::resource('permissions', RoleController::class);

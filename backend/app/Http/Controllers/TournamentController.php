@@ -113,6 +113,7 @@ class TournamentController extends Controller
         ]);
         // event(new NewChatMessageEvent($message, auth()->user()));
         broadcast(new NewChatMessageEvent($message, auth()->user()));
+        // $b = broadcast(new NewChatMessageEvent($message, auth()->user()));
         // dd($b);
         return back();
     }
@@ -123,6 +124,10 @@ class TournamentController extends Controller
     public function update(Request $request, string $id)
     {
         //
+    }
+    public function getCount(Request $request)
+    {
+        return $request->count;
     }
 
     /**

@@ -35,6 +35,7 @@ class NewChatMessageEvent implements ShouldBroadcast
      */
     public function broadcastOn() {
         return new PresenceChannel('tournament.'.$this->message->tournament_id);
+        // return new PrivateChannel('tournament.'.$this->message->tournament_id);
     }
     public function broadcastAs(): string
     {
