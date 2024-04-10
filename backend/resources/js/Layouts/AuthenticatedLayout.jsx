@@ -48,13 +48,9 @@ export default function Authenticated({ user, header, children }) {
                         },
                         id: notification.id
                     }
-                    console.log(unreadNotifications)
                     unreadNotifications.push(newUnreadNotifications)
-                    // readNotifications.push(newUnreadNotifications)
                     notifications.push(newUnreadNotifications)
                     setNotifCount(unreadNotifications.length)
-                    console.log(unreadNotifications)
-                    // console.log(notifications.length)
                 });
         };
 

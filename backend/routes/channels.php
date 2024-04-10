@@ -20,7 +20,7 @@ Broadcast::channel('tournament.{id}', function ($user, $tournament_id) {
     if(Auth::check()) {
         return [
             'username' => $user->username,
-            // 'avatar' => $user->profile_photo_url
+            'avatar' => $user->image
         ];
     }
 });

@@ -21,6 +21,9 @@ class Tournament extends Model
     {
         return $this->hasMany(User::class, 'tournament_players', 'team_id', 'user_id');
     }
+    public function messages() {
+        return $this->hasMany(Message::class);
+    }
     // protected $dispatchesEvents = [
     //     'created' => TournamentCreated::class,
     // ];

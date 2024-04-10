@@ -6,6 +6,8 @@ use App\Events\NewChatMessageEvent;
 use App\Events\TournamentCreated;
 use App\Http\Controllers\Controller;
 use App\Models\Message;
+use Illuminate\Broadcasting\PresenceChannel;
+use Illuminate\Broadcasting\PrivateChannel;
 use Illuminate\Http\Request;
 use App\Models\Game;
 use App\Models\User;
@@ -80,11 +82,14 @@ class TournamentController extends Controller
      */
     public function show($id)
     {
+        // dd(broadcast(new NewChatMessageEvent("dddddddddd", auth()->user()))->toOthers());
         $tournament = Tournament::where('id', $id)->first();
         $messages = Message::where('tournament_id', $id)
             ->with('user')
             ->oldest()
             ->get();
+        // $the = new PrivateChannel('tournament.1');
+        // dd($the);
         return Inertia::render('Tournaments/Show', [
             'status' => session('status'),
             'tournament' => $tournament,
@@ -106,7 +111,9 @@ class TournamentController extends Controller
             'body' => $request->body,
             'user_id' => auth()->id()
         ]);
-        broadcast(new NewChatMessageEvent($message, auth()->user()))->toOthers();
+        // event(new NewChatMessageEvent($message, auth()->user()));
+        broadcast(new NewChatMessageEvent($message, auth()->user()));
+        // dd($b);
         return back();
     }
 

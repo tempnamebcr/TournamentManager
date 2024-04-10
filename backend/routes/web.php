@@ -54,7 +54,7 @@ Route::prefix('notifications')->name('notifications.')->group(function() {
 Route::post('notifications/markAsRead/{id}', [NotificationController::class, 'markAsRead'])->name('notifications.markAsRead');
 // Route::resource('notifications', NotificationController::class);
 Route::resource('games', GameController::class);
-Route::get('/tournaments/{id}/message', [TournamentController::class, 'message'])->name('message');
+Route::post('/tournaments/{id}/message', [TournamentController::class, 'message'])->name('tournaments.message');
 Route::resource('tournaments', TournamentController::class);
 Route::get('permissions/initial', [RoleController::class, 'initial'])->name('permissions.initial');
 Route::resource('permissions', RoleController::class);
