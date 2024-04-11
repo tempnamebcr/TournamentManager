@@ -60,6 +60,7 @@ Route::post('/tournaments/{id}/getCount', [TournamentController::class, 'getCoun
 Route::resource('tournaments', TournamentController::class);
 Route::get('permissions/initial', [RoleController::class, 'initial'])->name('permissions.initial');
 Route::resource('permissions', RoleController::class);
+Route::post('teams/addPlayer', [TeamController::class, 'addPlayer'])->name('teams.addPlayer');
 Route::resource('teams', TeamController::class);
 
 require __DIR__.'/auth.php';

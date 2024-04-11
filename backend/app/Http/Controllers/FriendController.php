@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Events\FriendRequestAcceptedEvent;
 use App\Events\FriendRequestReceivedEvent;
+use App\Models\Team;
 use App\Models\User;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
@@ -17,9 +18,16 @@ class FriendController extends Controller
      * @return \Illuminate\Http\Response
      */
     public function index() {
+        // $d = Team::whereHas('users', function ($query) {
+        //     $query->where('user_id', auth()->user()->id);
+        // })->get();
+        // dd($d);
         return Inertia::render('Friends/Index', [
             'friends' => auth()->user()->friends(),
             'requests' => auth()->user()->pending_friend_requests(),
+            'teams' => Team::whereHas('users', function ($query) {
+                $query->where('user_id', auth()->user()->id);
+            })->get(),
         ]);
     }
 

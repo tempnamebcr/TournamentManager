@@ -19,7 +19,7 @@ class Tournament extends Model
     }
     public function users()
     {
-        return $this->hasMany(User::class, 'tournament_players', 'team_id', 'user_id');
+        return $this->belongsToMany(User::class, 'tournament_players', 'team_id', 'user_id');
     }
     public function messages() {
         return $this->hasMany(Message::class);

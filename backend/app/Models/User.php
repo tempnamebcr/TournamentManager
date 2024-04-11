@@ -55,7 +55,7 @@ class User extends Authenticatable
     }
     public function teams()
     {
-        return $this->belongsToMany(Team::class, 'team_players', 'user_id', 'team_id');
+        return $this->belongsToMany(Team::class, 'team_players');
     }
     public function tournaments()
     {

@@ -8,9 +8,11 @@ use Illuminate\Database\Eloquent\Model;
 class Team extends Model
 {
     use HasFactory;
+    protected $fillable = ['name', 'games_won'];
+    protected $with = ['users'];
 
     public function users()
     {
-        return $this->hasMany(User::class, 'team_players', 'team_id', 'user_id');
+        return $this->belongsToMany(User::class, 'team_players');
     }
 }
