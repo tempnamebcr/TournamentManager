@@ -27,6 +27,9 @@ class EventServiceProvider extends ServiceProvider
         \App\Events\TournamentCreated::class => [
             \App\Listeners\TournamentCreatedListener::class,
         ],
+        \App\Events\AddedToTeamEvent::class => [
+            \App\Listeners\AddedToTeamListener::class,
+        ],
         // \App\Events\NewChatMessageEvent::class => [
             // \App\Listeners\NewChatMessageListener::class,
         // ]

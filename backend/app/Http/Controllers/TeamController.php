@@ -2,12 +2,14 @@
 
 namespace App\Http\Controllers;
 
+use App\Events\AddedToTeamEvent;
 use App\Http\Controllers\Controller;
 use App\Models\Team;
 use App\Models\Image;
 use App\Models\TeamPlayer;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
+use App\Models\User;
 
 class TeamController extends Controller
 {
@@ -84,10 +86,12 @@ class TeamController extends Controller
     public function addPlayer(Request $request)
     {
         $team = Team::find($request->team_id);
-        if ($team->users()->where('user_id', auth()->user()->id)->exists()) {
+        if ($team->users()->where('user_id', $request->user_id)->exists()) {
             return back()->with('message', 'Utilizatorul este deja în echipa!');
         }
-        $team->users()->attach(auth()->user()->id);
+        $team->users()->attach($request->user_id);
+        $user = User::find($request->user_id);
+        event(new AddedToTeamEvent($user, $team));
         return back()->with('message', 'Prieten adăugat în echipă cu succes!');
     }
 }
