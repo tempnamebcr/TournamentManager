@@ -84,6 +84,7 @@ class TournamentController extends Controller
     {
         // dd(broadcast(new NewChatMessageEvent("dddddddddd", auth()->user()))->toOthers());
         $tournament = Tournament::where('id', $id)->first();
+        // dd($tournament->game);
         $messages = Message::where('tournament_id', $id)
             ->with('user')
             ->oldest()
@@ -93,7 +94,8 @@ class TournamentController extends Controller
         return Inertia::render('Tournaments/Show', [
             'status' => session('status'),
             'tournament' => $tournament,
-            'messages' => $messages
+            'messages' => $messages,
+            'game' => $tournament->game
         ]);
     }
 

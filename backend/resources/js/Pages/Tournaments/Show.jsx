@@ -5,8 +5,21 @@ import TournamentUsers from '@/Components/Tournament/TournamentUsers';
 import { useState, useEffect } from 'react';
 import { Head, useForm } from '@inertiajs/react';
 import useScript from '../../Hooks/useScript';
+import PrimaryButton from '@/Components/PrimaryButton';
 
-export default function Show({ tournament, auth, messages }) {
+export default function Show({ tournament, auth, messages, game }) {
+    const timpActual = new Date();
+    const oreMinute = tournament.hour.split(":");
+    let dataTurneu = new Date(tournament.date);
+    //turneul poate fi pornit max 1 ora dupa ce vine ora acestuia, daca nu, devine invalid
+    dataTurneu.setHours(oreMinute[0] + 1);
+    dataTurneu.setMinutes(oreMinute[1]);
+    let clasaCuloare = '';
+    let valid = true;
+    if (dataTurneu < timpActual) {
+        clasaCuloare = 'text-red-500';
+        valid=false;
+    }
 
     // const {post} = useForm({})
     let [stateMessage, setStateMessage] = useState(messages);
@@ -18,23 +31,6 @@ export default function Show({ tournament, auth, messages }) {
     const [activeCount, setActiveCount] = useState(0);
     const [users, setUsers] = useState([]);
     const [formSuccess, setFormSuccess] = useState(false);
-
-    // useEffect(() => {
-    //     const listeenChat = () => {
-    //         window.Echo.private(`tournament.${tournament.id}`)
-    //         .listen('.chat-message', (e)=>{
-    //             console.log('chat-message-cu-punct')
-    //             let newMessage = {
-    //                 body:e.message.body,
-    //                 user:e.user
-    //             }
-    //             const updatedMessages = [...messages, newMessage];
-    //             setStateMessage(updatedMessages);
-    //             messages.push(newMessage)
-    //         })
-    //     }
-    //     listeenChat()
-    // }, []);
     useEffect(() => {
         const listenChat = () => {
             window.Echo.join(`tournament.${tournament.id}`)
@@ -65,6 +61,7 @@ export default function Show({ tournament, auth, messages }) {
                 const updatedMessages = [...messages, newMessage];
                 setStateMessage(updatedMessages);
                 messages.push(newMessage)
+                console.log(users);
             })
         }
         listenChat();
@@ -93,12 +90,7 @@ export default function Show({ tournament, auth, messages }) {
                 processing:true
             }));
             await axios.post(route('tournaments.message', {id:tournament.id}), {body:form.body});
-            // let newMessage = {
-            //     body:e.message.body,
-            //     user:e.user
-            // }
-            // messages.push(newMessage);
-            // setStateMessage(messages)
+
             setForm(prevState => ({
                 ...prevState,
                 body: '',
@@ -124,6 +116,36 @@ export default function Show({ tournament, auth, messages }) {
                     <TournamentUsers users={users} />
                     </div>
 
+                    <div className="p-4 sm:p-8 bg-white shadow sm:rounded-lg h-128">
+                        <span>{tournament.type}</span>
+                        <div className="flex">
+                            <div className="mx-auto my-0">
+                                {game.image && <img src={"../storage/" + game.image[0].location} width="100" height="100" alt="game photo" />}
+                            </div>
+                        </div>
+                        <div className="flex justify-between">
+                            <TournamentUsers users={users} />
+                            <span className='my-auto'>
+                                VS
+                            </span>
+                            <TournamentUsers users={users} />
+                        </div>
+                        <div className="flex">
+                            <div className={`mx-auto my-0 ${clasaCuloare}`}>
+                                {tournament.date.split(' ')[0]}
+                            </div>
+                        </div>
+                        <div className="flex">
+                            <div className={`mx-auto my-0 ${clasaCuloare}`}>
+                                {tournament.hour}
+                            </div>
+                        </div>
+                        <div className="flex justify-end">
+                            {/* {valid && <PrimaryButton>Start tournament</PrimaryButton>} */}
+                            <PrimaryButton>Start tournament</PrimaryButton>
+                        </div>
+                    </div>
+
                     <div className="p-4 sm:p-8 bg-white shadow sm:rounded-lg h-96">
                         <ChatBox messages={stateMessage} currentUser={auth.user}></ChatBox>
                         <ChatInput form={form}
@@ -139,3 +161,4 @@ export default function Show({ tournament, auth, messages }) {
         </AuthenticatedLayout>
     );
 }
+

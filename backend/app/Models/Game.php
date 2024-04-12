@@ -10,12 +10,13 @@ class Game extends Model
     use HasFactory;
 
     protected $guarded = [];
+    protected $with=['image'];
 
     public function tournaments(): HasMany
     {
         return $this->hasMany(Tournament::class);
     }
-    public function image(): MorphMany
+    public function image()
     {
         return $this->morphMany(Image::class, 'imageable');
     }
