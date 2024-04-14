@@ -6,6 +6,8 @@ use App\Events\NewChatMessageEvent;
 use App\Events\TournamentCreated;
 use App\Http\Controllers\Controller;
 use App\Models\Message;
+use App\Models\Team;
+use App\Models\TournamentTeam;
 use Illuminate\Broadcasting\PresenceChannel;
 use Illuminate\Broadcasting\PrivateChannel;
 use Illuminate\Http\Request;
@@ -24,7 +26,7 @@ class TournamentController extends Controller
      */
     public function index()
     {
-        return Inertia::render('Tournaments/Index', ['status' => session('status'), 'games' => Game::all(), 'tournaments' => Tournament::all()]);
+        return Inertia::render('Tournaments/Index', ['status' => session('status'), 'games' => Game::all(), 'tournaments' => Tournament::all(), 'teams' =>auth()->user()->teams]);
     }
 
     /**
@@ -84,6 +86,26 @@ class TournamentController extends Controller
     {
         // dd(broadcast(new NewChatMessageEvent("dddddddddd", auth()->user()))->toOthers());
         $tournament = Tournament::where('id', $id)->first();
+        if(request()->team_id != null){
+            $team = Team::where('id', request()->team_id)->first();
+            $tournament_team = TournamentTeam::where('tournament_id', $id)->first();
+            if ($tournament_team==null){
+                $tournament_team = TournamentTeam::create([
+                    'tournament_id' => $tournament->id,
+                    'first_team_id' => $team->id,
+                    'second_team_id' => null,
+                ]);
+            }
+            else{
+                if ($tournament_team->second_team_id == null && request()->team_id != $tournament_team->first_team_id){
+                    $tournament_team->update([
+                        'second_team_id' => $team->id,
+                    ]);
+                }
+            }
+            $first_team = Team::where('id', $tournament_team->first_team_id)->first();
+            $second_team = Team::where('id', $tournament_team->second_team_id)->first();
+        }
         // dd($tournament->game);
         $messages = Message::where('tournament_id', $id)
             ->with('user')
@@ -95,7 +117,10 @@ class TournamentController extends Controller
             'status' => session('status'),
             'tournament' => $tournament,
             'messages' => $messages,
-            'game' => $tournament->game
+            'game' => $tournament->game,
+            'team' => $team ?? null,
+            'firstTeam' => $first_team ?? null,
+            'secondTeam' => $second_team ?? null,
         ]);
     }
 

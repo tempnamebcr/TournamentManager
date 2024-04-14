@@ -2,12 +2,17 @@ import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
 import ChatBox from '@/Components/Chat/ChatBox';
 import ChatInput from '@/Components/Chat/ChatInput';
 import TournamentUsers from '@/Components/Tournament/TournamentUsers';
+import VersusUsers from '@/Components/Tournament/VersusUsers';
+import Team from '@/Components/Tournament/Team';
+import RandomUsers from '@/Components/Tournament/RandomUsers';
 import { useState, useEffect } from 'react';
 import { Head, useForm } from '@inertiajs/react';
 import useScript from '../../Hooks/useScript';
 import PrimaryButton from '@/Components/PrimaryButton';
 
-export default function Show({ tournament, auth, messages, game }) {
+export default function Show({ tournament, auth, messages, game, team, firstTeam, secondTeam }) {
+
+    //calcul timp turneu
     const timpActual = new Date();
     const oreMinute = tournament.hour.split(":");
     let dataTurneu = new Date(tournament.date);
@@ -21,16 +26,16 @@ export default function Show({ tournament, auth, messages, game }) {
         valid=false;
     }
 
-    // const {post} = useForm({})
     let [stateMessage, setStateMessage] = useState(messages);
     const [body, setBody] = useState('');
     const [form, setForm] = useState({ body: body,
         tournament: tournament.id,
         processing: false
     });
+    //tournament users, their count
     const [activeCount, setActiveCount] = useState(0);
     const [users, setUsers] = useState([]);
-    const [formSuccess, setFormSuccess] = useState(false);
+    // const [tournamentTeams, setTournamentTeams] = useState([firstTeam, secondTeam]);
     useEffect(() => {
         const listenChat = () => {
             window.Echo.join(`tournament.${tournament.id}`)
@@ -47,6 +52,7 @@ export default function Show({ tournament, auth, messages, game }) {
             })
             .joining((user) => {
                 setUsers(prevUsers => {
+                    console.log(user)
                     const updatedUsers = [...prevUsers, user];
                     setActiveCount(updatedUsers.length);
                     return updatedUsers;
@@ -76,12 +82,6 @@ export default function Show({ tournament, auth, messages, game }) {
             [field]: value
         });
     };
-    const getActive = () => {
-        this.updateUserForm.post(this.route('chat-rooms.update', this.room), {
-            preserveScroll: true,
-            onSuccess:()=>{}
-        })
-    }
 
     const submitMessage = async (e) => {
         try {
@@ -112,8 +112,8 @@ export default function Show({ tournament, auth, messages, game }) {
             <div className="py-12">
                 <div className="max-w-7xl mx-auto sm:px-6 lg:px-8 space-y-6">
                     <div className="p-4 sm:p-8 bg-white shadow sm:rounded-lg">
-                    Active count : {activeCount}
-                    <TournamentUsers users={users} />
+                        Active count : {activeCount}
+                        <TournamentUsers users={users} />
                     </div>
 
                     <div className="p-4 sm:p-8 bg-white shadow sm:rounded-lg h-128">
@@ -123,13 +123,37 @@ export default function Show({ tournament, auth, messages, game }) {
                                 {game.image && <img src={"../storage/" + game.image[0].location} width="100" height="100" alt="game photo" />}
                             </div>
                         </div>
-                        <div className="flex justify-between">
+                        {/* <div className="flex justify-between">
                             <TournamentUsers users={users} />
                             <span className='my-auto'>
                                 VS
                             </span>
                             <TournamentUsers users={users} />
+                        </div> */}
+                        {
+                            !secondTeam &&
+                            <Team users={users.filter((user) =>
+                                user.teams.some((team) => team.id === firstTeam.id)
+                            )} team={firstTeam} />
+                        }
+                        {
+                            secondTeam &&
+                            <Team
+                                users={users.filter((user) =>
+                                    user.teams.some((team) => team.id === firstTeam.id) && !user.teams.some((team) => team.id === secondTeam.id)
+                                )}
+                                team={firstTeam}
+                            />
+                        }
+                        <div className="flex justify-center">
+                            VS
                         </div>
+                        {
+                            secondTeam != null &&
+                            <Team users={users.filter((user) =>
+                                user.teams.some((team) => team.id === secondTeam.id)
+                            )} team={secondTeam} />
+                        }
                         <div className="flex">
                             <div className={`mx-auto my-0 ${clasaCuloare}`}>
                                 {tournament.date.split(' ')[0]}
