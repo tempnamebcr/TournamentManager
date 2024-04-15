@@ -10,7 +10,7 @@ import { Head, useForm } from '@inertiajs/react';
 import useScript from '../../Hooks/useScript';
 import PrimaryButton from '@/Components/PrimaryButton';
 
-export default function Show({ tournament, auth, messages, game, team, firstTeam, secondTeam }) {
+export default function Single({ tournament, auth, messages, game }) {
 
     //calcul timp turneu
     const timpActual = new Date();
@@ -25,7 +25,6 @@ export default function Show({ tournament, auth, messages, game, team, firstTeam
         clasaCuloare = 'text-red-500';
         valid=false;
     }
-    console.log(tournament.type)
 
     let [stateMessage, setStateMessage] = useState(messages);
     const [body, setBody] = useState('');
@@ -36,7 +35,6 @@ export default function Show({ tournament, auth, messages, game, team, firstTeam
     //tournament users, their count
     const [activeCount, setActiveCount] = useState(0);
     const [users, setUsers] = useState([]);
-    // const [tournamentTeams, setTournamentTeams] = useState([firstTeam, secondTeam]);
     useEffect(() => {
         const listenChat = () => {
             window.Echo.join(`tournament.${tournament.id}`)
@@ -124,41 +122,6 @@ export default function Show({ tournament, auth, messages, game, team, firstTeam
                                 {game.image && <img src={"../storage/" + game.image[0].location} width="100" height="100" alt="game photo" />}
                             </div>
                         </div>
-                        {/* TEAM */}
-                        {
-                            tournament.type=="Team" && !secondTeam &&
-                            <Team users={users.filter((user) =>
-                                user.teams.some((team) => team.id === firstTeam.id)
-                            )} team={firstTeam} />
-                        }
-                        {
-                            tournament.type=="Team" && secondTeam &&
-                            <Team
-                                users={users.filter((user) =>
-                                    user.teams.some((team) => team.id === firstTeam.id) && !user.teams.some((team) => team.id === secondTeam.id)
-                                )}
-                                team={firstTeam}
-                            />
-                        }
-                        {
-                            tournament.type=="Team" &&
-                            <div className="flex justify-center">
-                                VS
-                            </div>
-                        }
-                        {
-                            tournament.type=="Team" && secondTeam != null &&
-                            <Team users={users.filter((user) =>
-                                user.teams.some((team) => team.id === secondTeam.id)
-                            )} team={secondTeam} />
-                        }
-                        {/* ENDTEAM */}
-                        {/*Random*/}
-                        {
-                            tournament.type == "Random " &&
-                            <RandomUsers users={users}></RandomUsers>
-                        }
-                        {/*endrandom*/}
                         {/* VERSUS */}
                         { tournament.type == "Versus" &&
                             <VersusUsers users={users}></VersusUsers>
@@ -175,9 +138,8 @@ export default function Show({ tournament, auth, messages, game, team, firstTeam
                             </div>
                         </div>
                         <div className="flex justify-end">
-                            {/* {valid && <PrimaryButton>Start tournament</PrimaryButton>} */}
-                            {auth.user.isAdmin && <PrimaryButton>Start tournament</PrimaryButton>}
-                            {!auth.user.isAdmin && <PrimaryButton>wait bro</PrimaryButton>}
+                            {auth.user.isAdmin ? <PrimaryButton >Start tournament</PrimaryButton> : ""}
+                            {!auth.user.isAdmin ? <PrimaryButton >waiting for players..</PrimaryButton> : ""}
                         </div>
                     </div>
 

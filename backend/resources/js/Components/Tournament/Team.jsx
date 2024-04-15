@@ -6,7 +6,7 @@ const Team = ({ users, team }) => {
     <div className="flex-column justify-between">
         {team.name}
         <TournamentUsers users={users} />
-    </div>
+    </div>  
   );
 };
 

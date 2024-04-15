@@ -10,7 +10,7 @@ const RandomUsers = ({ users }) => {
             VS
         </span>
         {users.length >=3 ? <TournamentUsers users={[users[2]]} /> : <p>empty</p>}
-        {users.length >=3 ? <TournamentUsers users={[users[3]]} /> : <p>empty</p>}
+        {users.length >=4 ? <TournamentUsers users={[users[3]]} /> : <p>empty</p>}
     </div>
   );
 };

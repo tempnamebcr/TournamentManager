@@ -8,6 +8,7 @@ use App\Http\Controllers\Controller;
 use App\Models\Message;
 use App\Models\Team;
 use App\Models\TournamentTeam;
+use Carbon\Carbon;
 use Illuminate\Broadcasting\PresenceChannel;
 use Illuminate\Broadcasting\PrivateChannel;
 use Illuminate\Http\Request;
@@ -113,7 +114,8 @@ class TournamentController extends Controller
             ->get();
         // $the = new PrivateChannel('tournament.1');
         // dd($the);
-        return Inertia::render('Tournaments/Show', [
+        $type = $tournament->type;
+        return Inertia::render('Tournaments/'.$type, [
             'status' => session('status'),
             'tournament' => $tournament,
             'messages' => $messages,
@@ -163,5 +165,53 @@ class TournamentController extends Controller
     public function destroy(string $id)
     {
         //
+    }
+    public function startTournament(Request $request, $id)
+    {
+        $tournament = Tournament::where('id', $id)->first();
+        $tournament->started = Carbon::now();
+
+        //todo take the fee from the players
+
+        // if ($tournament->type == "Random"){
+
+        // }
+        // if ($tournament->type == "Single"){
+
+        // }
+        // if ($tournament->type == "Team"){
+
+        // }
+        $tournament->save();
+    }
+    public function finishTournament(Request $request, $id){
+        $tournament = Tournament::where("id", $id)->first();
+    }
+    public function uploadPhoto(Request $request, $id){
+        $tournament = Tournament::where("id", $id)->first();
+        if ($request->hasFile('image')) {
+            $image = $request->file('image')->getClientOriginalName();
+            $path = $request->file('image')->storeAs('tournaments', $image, 'public');
+            $image = Image::create([
+                'imageable_type' => "App\Models\Tournament",
+                'imageable_id' => $tournament->id,
+                'location' => $path,
+            ]);
+        }
+        $tournament->ended = Carbon::now();
+        $tournament->save();
+        return response()->json(['message' => 'Imaginea a fost încărcată cu succes.']);
+    }
+    public function completedTournament(Request $request, $id){
+        $tournament = Tournament::where("id", $id)->first();
+        $users = $request->users;
+        //todo daca nu esti admin sau nu s-a finalizat turneul, n-ai voie pe ruta
+
+        return Inertia::render('Tournaments/Completed', ['tournament' => $tournament, 'users' => $users]);
+    }
+    public function givePrizes(Request $request, $id){
+        $tournament = Tournament::where("id", $id)->first();
+
+        //todo notifications, maybe on level up
     }
 }

@@ -21,7 +21,8 @@ Broadcast::channel('tournament.{id}', function ($user, $tournament_id) {
         return [
             'username' => $user->username,
             'avatar' => $user->image,
-            'teams' => $user->teams
+            'teams' => $user->teams,
+            'isAdmin' => $user->isAdmin
         ];
     }
 });

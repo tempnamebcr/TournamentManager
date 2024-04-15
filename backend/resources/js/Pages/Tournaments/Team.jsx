@@ -10,7 +10,7 @@ import { Head, useForm } from '@inertiajs/react';
 import useScript from '../../Hooks/useScript';
 import PrimaryButton from '@/Components/PrimaryButton';
 
-export default function Show({ tournament, auth, messages, game, team, firstTeam, secondTeam }) {
+export default function Team({ tournament, auth, messages, game, team, firstTeam, secondTeam }) {
 
     //calcul timp turneu
     const timpActual = new Date();
@@ -153,31 +153,28 @@ export default function Show({ tournament, auth, messages, game, team, firstTeam
                             )} team={secondTeam} />
                         }
                         {/* ENDTEAM */}
-                        {/*Random*/}
+                        {   !tournament.started &&
+                            <div className="flex">
+                                <div className={`mx-auto my-0 ${clasaCuloare}`}>
+                                    {tournament.date.split(' ')[0]}
+                                </div>
+                            </div>
+                        }
                         {
-                            tournament.type == "Random " &&
-                            <RandomUsers users={users}></RandomUsers>
-                        }
-                        {/*endrandom*/}
-                        {/* VERSUS */}
-                        { tournament.type == "Versus" &&
-                            <VersusUsers users={users}></VersusUsers>
-                        }
-                        {/* END VERSUS */}
-                        <div className="flex">
-                            <div className={`mx-auto my-0 ${clasaCuloare}`}>
-                                {tournament.date.split(' ')[0]}
+                            !tournament.started &&
+                            <div className="flex">
+                                <div className={`mx-auto my-0 ${clasaCuloare}`}>
+                                    {tournament.hour}
+                                </div>
                             </div>
-                        </div>
-                        <div className="flex">
-                            <div className={`mx-auto my-0 ${clasaCuloare}`}>
-                                {tournament.hour}
-                            </div>
-                        </div>
+                        }
+                        {
+                            tournament.started &&
+                            <p>a</p>
+                        }
                         <div className="flex justify-end">
-                            {/* {valid && <PrimaryButton>Start tournament</PrimaryButton>} */}
-                            {auth.user.isAdmin && <PrimaryButton>Start tournament</PrimaryButton>}
-                            {!auth.user.isAdmin && <PrimaryButton>wait bro</PrimaryButton>}
+                            {auth.user.isAdmin ? <PrimaryButton >Start tournament</PrimaryButton> : ""}
+                            {!auth.user.isAdmin ? <PrimaryButton >waiting for players..</PrimaryButton> : ""}
                         </div>
                     </div>
 

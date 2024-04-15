@@ -56,6 +56,10 @@ Route::post('notifications/markAsRead/{id}', [NotificationController::class, 'ma
 // Route::resource('notifications', NotificationController::class);
 Route::resource('games', GameController::class);
 Route::post('/tournaments/{id}/message', [TournamentController::class, 'message'])->name('tournaments.message');
+Route::post('/tournaments/{id}/startTournament', [TournamentController::class, 'startTournament'])->name('tournaments.startTournament');
+Route::post('/tournaments/{id}/finishTournament', [TournamentController::class, 'finishTournament'])->name('tournaments.finishTournament');
+Route::get('/tournaments/{id}/completedTournament', [TournamentController::class, 'completedTournament'])->name('tournaments.completedTournament');
+Route::post('/tournaments/{id}/uploadPhoto', [TournamentController::class, 'uploadPhoto'])->name('tournaments.uploadPhoto');
 Route::post('/tournaments/{id}/getCount', [TournamentController::class, 'getCount'])->name('tournaments.getCount');
 Route::resource('tournaments', TournamentController::class);
 Route::get('permissions/initial', [RoleController::class, 'initial'])->name('permissions.initial');

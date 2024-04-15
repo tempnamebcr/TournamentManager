@@ -9,8 +9,11 @@ import { useState, useEffect } from 'react';
 import { Head, useForm } from '@inertiajs/react';
 import useScript from '../../Hooks/useScript';
 import PrimaryButton from '@/Components/PrimaryButton';
+import TimerComponent from '@/Components/TimerComponent';
+import UploadPhotoButton from '@/Components/UploadPhotoButton';
+import { router } from '@inertiajs/react'
 
-export default function Show({ tournament, auth, messages, game, team, firstTeam, secondTeam }) {
+export default function Random({ tournament, auth, messages, game, team, firstTeam, secondTeam }) {
 
     //calcul timp turneu
     const timpActual = new Date();
@@ -124,60 +127,35 @@ export default function Show({ tournament, auth, messages, game, team, firstTeam
                                 {game.image && <img src={"../storage/" + game.image[0].location} width="100" height="100" alt="game photo" />}
                             </div>
                         </div>
-                        {/* TEAM */}
-                        {
-                            tournament.type=="Team" && !secondTeam &&
-                            <Team users={users.filter((user) =>
-                                user.teams.some((team) => team.id === firstTeam.id)
-                            )} team={firstTeam} />
-                        }
-                        {
-                            tournament.type=="Team" && secondTeam &&
-                            <Team
-                                users={users.filter((user) =>
-                                    user.teams.some((team) => team.id === firstTeam.id) && !user.teams.some((team) => team.id === secondTeam.id)
-                                )}
-                                team={firstTeam}
-                            />
-                        }
-                        {
-                            tournament.type=="Team" &&
-                            <div className="flex justify-center">
-                                VS
-                            </div>
-                        }
-                        {
-                            tournament.type=="Team" && secondTeam != null &&
-                            <Team users={users.filter((user) =>
-                                user.teams.some((team) => team.id === secondTeam.id)
-                            )} team={secondTeam} />
-                        }
-                        {/* ENDTEAM */}
                         {/*Random*/}
                         {
-                            tournament.type == "Random " &&
+                            tournament.type == "Random" &&
                             <RandomUsers users={users}></RandomUsers>
                         }
                         {/*endrandom*/}
-                        {/* VERSUS */}
-                        { tournament.type == "Versus" &&
-                            <VersusUsers users={users}></VersusUsers>
+                        {
+                            !tournament.started &&
+                            <div className="flex">
+                                <div className={`mx-auto my-0 ${clasaCuloare}`}>
+                                    {tournament.hour}
+                                </div>
+                            </div>
                         }
-                        {/* END VERSUS */}
-                        <div className="flex">
-                            <div className={`mx-auto my-0 ${clasaCuloare}`}>
-                                {tournament.date.split(' ')[0]}
-                            </div>
-                        </div>
-                        <div className="flex">
-                            <div className={`mx-auto my-0 ${clasaCuloare}`}>
-                                {tournament.hour}
-                            </div>
-                        </div>
+                        {
+                            tournament.started && !tournament.ended &&
+                            <TimerComponent tournament={tournament} ended={false}></TimerComponent>
+                        }
+                        {
+                            tournament.ended &&
+                            <TimerComponent tournament={tournament} ended={true}></TimerComponent>
+                        }
                         <div className="flex justify-end">
-                            {/* {valid && <PrimaryButton>Start tournament</PrimaryButton>} */}
-                            {auth.user.isAdmin && <PrimaryButton>Start tournament</PrimaryButton>}
-                            {!auth.user.isAdmin && <PrimaryButton>wait bro</PrimaryButton>}
+                            {auth.user.isAdmin  && !tournament.started ? <PrimaryButton >Start tournament</PrimaryButton> : ""}
+                            {auth.user.isAdmin  && tournament.started && !tournament.ended ? <PrimaryButton disabled={true}>Waiting for the finish</PrimaryButton> : ""}
+                            {auth.user.isAdmin  && tournament.ended ? <PrimaryButton onClick={() => router.visit(route('tournaments.completedTournament', [tournament.id, {tournament:tournament, users:users}]))}>Give prizes</PrimaryButton> : ""}
+                            {!auth.user.isAdmin  && !tournament.started ? <PrimaryButton >waiting for players..</PrimaryButton> : ""}
+                            {!auth.user.isAdmin  && tournament.started  && !tournament.ended ? <UploadPhotoButton tournament={tournament}/> : ""}
+                            {!auth.user.isAdmin  && tournament.ended ? <PrimaryButton disabled={true}>Waiting for the prizes</PrimaryButton> : ""}
                         </div>
                     </div>
 

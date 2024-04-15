@@ -11,7 +11,7 @@ class Tournament extends Model
     use HasFactory;
     protected $guarded = [];
 
-    protected $with = ['game'];
+    protected $with = ['game', 'image'];
 
     public function game()
     {
@@ -23,6 +23,10 @@ class Tournament extends Model
     }
     public function messages() {
         return $this->hasMany(Message::class);
+    }
+    public function image()
+    {
+        return $this->morphOne(Image::class, 'imageable');
     }
     // protected $dispatchesEvents = [
     //     'created' => TournamentCreated::class,
