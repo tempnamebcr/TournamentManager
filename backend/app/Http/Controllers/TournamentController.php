@@ -7,6 +7,7 @@ use App\Events\TournamentCreated;
 use App\Http\Controllers\Controller;
 use App\Models\Message;
 use App\Models\Team;
+use App\Models\TournamentPlayer;
 use App\Models\TournamentTeam;
 use Carbon\Carbon;
 use Illuminate\Broadcasting\PresenceChannel;
@@ -27,7 +28,7 @@ class TournamentController extends Controller
      */
     public function index()
     {
-        return Inertia::render('Tournaments/Index', ['status' => session('status'), 'games' => Game::all(), 'tournaments' => Tournament::all(), 'teams' =>auth()->user()->teams]);
+        return Inertia::render('Tournaments/Index', ['status' => session('status'), 'games' => Game::all(), 'tournaments' => Tournament::orderBy('created_at', 'desc')->get(), 'teams' =>auth()->user()->teams]);
     }
 
     /**
@@ -95,17 +96,31 @@ class TournamentController extends Controller
                     'tournament_id' => $tournament->id,
                     'first_team_id' => $team->id,
                     'second_team_id' => null,
+                    'first_user_id' => auth()->user()->id,
+                    'second_user_id' => null,
+                    'third_user_id' => null,
+                    'fourth_user_id' => null,
                 ]);
             }
-            else{
-                if ($tournament_team->second_team_id == null && request()->team_id != $tournament_team->first_team_id){
-                    $tournament_team->update([
-                        'second_team_id' => $team->id,
-                    ]);
-                }
+            else if ($tournament_team->second_team_id == null && request()->team_id != $tournament_team->first_team_id){
+                $tournament_team->update([
+                    'second_team_id' => $team->id,
+                    'third_user_id' => auth()->user()->id
+                ]);
+            }
+            else if ($tournament_team->first_team_id != null && request()->team_id == $tournament_team->first_team_id && $tournament->second_user_id == null){
+                $tournament_team->update([
+                    'second_user_id' => auth()->user()->id
+                ]);
+            }
+            else if ($tournament_team->second_team_id != null && request()->team_id == $tournament_team->second_team_id && $tournament->fourth_user_id == null){
+                $tournament_team->update([
+                    'fourth_user_id' => auth()->user()->id
+                ]);
             }
             $first_team = Team::where('id', $tournament_team->first_team_id)->first();
             $second_team = Team::where('id', $tournament_team->second_team_id)->first();
+            $current_tournament_teams = $tournament_team;
         }
         // dd($tournament->game);
         $messages = Message::where('tournament_id', $id)
@@ -123,6 +138,7 @@ class TournamentController extends Controller
             'team' => $team ?? null,
             'firstTeam' => $first_team ?? null,
             'secondTeam' => $second_team ?? null,
+            'currentTournamentTeam' => $current_tournament_teams ?? null
         ]);
     }
 
@@ -210,8 +226,41 @@ class TournamentController extends Controller
         return Inertia::render('Tournaments/Completed', ['tournament' => $tournament, 'users' => $users]);
     }
     public function givePrizes(Request $request, $id){
+        $users = $request->users;
         $tournament = Tournament::where("id", $id)->first();
 
+        $tournament->winnable_id = intval($request->winner);
+        $tournament->save();
+        // if ($tournament->type == "Random"){
+            //sa fie creata random team si sa fie pusa ea ca winner
+        // }
+        // if ($tournament->type == "Team"){
+            //winner sa fie echipa; poate sa fac un select multiplu cu winner ids?
+        // }
+        foreach( $users as $usr){
+            TournamentPlayer::create(
+                [
+                    'user_id'=> intval($usr['id']),
+                    'tournament_id' => $tournament->id,
+                    'final_score' => $usr['value'],
+                    'fee_paid' => $tournament->participation_fee,
+                    'amount_won' => intval($usr['id']) == intval($request->winner) ? $tournament->prize : 0
+                ]
+            );
+            $user = User::where('id', $usr['id'])->first();
+            //todo calculate experience, lv up and all
+            if($user->id == $request->winner){
+                $user->experience+= 100;
+            }
+            $user->experience+=100;
+            if ($user->experience >= 500){
+                $user->experience = 0;
+                $user->level +=1;
+                //event new lvl up
+            }
+            $user->save();
+        }
+        return Inertia::render('Dashboard');
         //todo notifications, maybe on level up
     }
 }

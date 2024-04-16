@@ -14,23 +14,28 @@ import 'react-clock/dist/Clock.css';
 import TimePicker from 'react-time-picker';
 
 
-export default function Completed({ auth, games, tournament, users }) {
+export default function Completed({ auth, games, tournament, users, teams }) {
 
     const { flash } = usePage().props
 
     const { data, setData, post, processing, errors, reset } = useForm({
-        name: '',
-        date: new Date(),
-        type: '',
-        game: null,
-        recurrent: false,
-        fee: null,
-        hour: '10:00',
-        image: '',
+        tournament:tournament,
+        users:[],
+        teams:[],
+        winner:null,
     });
     const submit = (e) => {
         e.preventDefault();
-        post(route('tournaments.store'));
+        let inputs = document.querySelectorAll(".userInput");
+
+        inputs.forEach(input => {
+            let pair = {
+                name: input.name,
+                value: input.value
+            };
+            setData('users', [...data.users, pair])
+        });
+        post(route('tournaments.givePrizes', { id: tournament.id }));
     };
 
     return (
@@ -43,52 +48,25 @@ export default function Completed({ auth, games, tournament, users }) {
             <div className="py-12">
                 <div className="max-w-7xl mx-auto sm:px-6 lg:px-8">
                     <form onSubmit={submit}>
-                        {/* <div>
-                            <InputLabel htmlFor="name" value="Name" />
-                            <TextInput
-                                id="name"
-                                name="name"
-                                value={data.name}
-                                className="mt-1 block w-full"
-                                autoComplete="name"
-                                isFocused={true}
-                                onChange={(e) => setData('name', e.target.value)}
-                                required
-                            />
-
-                            <InputError message={errors.name} className="mt-2" />
-                        </div> */}
-
                         <div>
                             <img src={"../../storage/" + tournament.image.location} alt="" height={1000} width={1000} />
                         </div>
                         <div>
-                            <InputLabel htmlFor="date" value="Date" />
-                            <DatePicker selected={data.date} onChange={(date) => setData('date',date)} />
-                            <InputError message={errors.date} className="mt-2" />
-                        </div>
-                        <div>
-                            <InputLabel htmlFor="hour" value="Hour" />
-                            <TimePicker value={data.hour} onChange={(hour) => setData('hour',hour)} />
-                            <InputError message={errors.hour} className="mt-2" />
-                        </div>
-
-                        <div>
-                            <InputLabel htmlFor="type" value="Type" />
+                            <InputLabel htmlFor="winner" value="winner" />
                             <select
-                                id="type"
-                                name="type"
-                                value={data.type}
+                                id="winner"
+                                name="winner"
+                                value={data.winner}
                                 className="mt-1 block w-full"
-                                autoComplete="type"
+                                autoComplete="winner"
                                 isFocused={true}
-                                onChange={(e) => setData('type', e.target.value)}
+                                onChange={(e) => setData('winner', e.target.value)}
                                 required
                             >
                                 <option value="none">--</option>
-                                <option>Single</option>
-                                <option>Random</option>
-                                <option>Team</option>
+                                {users && users.map(user =>(
+                                    <option value={user.id}>{user.username}</option>
+                                ))}
                             </select>
 
                             <InputError message={errors.name} className="mt-2" />
@@ -99,34 +77,40 @@ export default function Completed({ auth, games, tournament, users }) {
                                 {flash.message}
                             </div>
                         )}
-
-                        <div>
-                            <InputLabel htmlFor="fee" value="Fee" />
-                            <TextInput
-                                id="fee"
-                                name="fee"
-                                type="number"
-                                value={data.fee}
-                                className="mt-1 block w-full"
-                                autoComplete="fee"
-                                isFocused={true}
-                                onChange={(e) => setData('fee', e.target.value)}
-                                required
-                            />
-
-                            <InputError message={errors.fee} className="mt-2" />
-                        </div>
-                        <div className="block mt-4">
-                            <label className="flex items-center">
-                                <Checkbox
-                                    name="recurrent"
-                                    checked={data.recurrent}
-                                    onChange={(e) => setData('recurrent', e.target.checked)}
+                        {
+                            users && users.map((user, i) => (
+                                <div key={i}>
+                                <InputLabel htmlFor={`${user.username}${i + 1}`} value={user.username} />
+                                <TextInput
+                                    id={`${user.username}${i + 1}`}
+                                    name={user.id}
+                                    type="text"
+                                    value={user.finalScore}
+                                    className="mt-1 block w-full userInput"
+                                    autoComplete={user.username}
+                                    isFocused={true}
+                                    onChange={(e) => {
+                                        const id = e.target.name;
+                                        const value = e.target.value;
+                                        const index = data.users.findIndex(user => user.id === id);
+                                        if (index !== -1) {
+                                            setData('users', data.users.map((user, i) => {
+                                                if (i === index) {
+                                                    return { ...user, value };
+                                                } else {
+                                                    return user;
+                                                }
+                                            }));
+                                        } else {
+                                            setData('users', [...data.users, { id, value }]);
+                                        }
+                                    }}
+                                    required
                                 />
-                                <span className="ms-2 text-sm text-gray-600">Recurrent</span>
-                            </label>
-                        </div>
-
+                                <InputError message={errors.fee} className="mt-2" />
+                            </div>
+                            ))
+                        }
                         <div className="flex items-center justify-end mt-4">
 
                             <PrimaryButton className="ms-4" disabled={processing}>

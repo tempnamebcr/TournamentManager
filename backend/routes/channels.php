@@ -22,7 +22,8 @@ Broadcast::channel('tournament.{id}', function ($user, $tournament_id) {
             'username' => $user->username,
             'avatar' => $user->image,
             'teams' => $user->teams,
-            'isAdmin' => $user->isAdmin
+            'isAdmin' => $user->isAdmin,
+            'id' => $user->id
         ];
     }
 });

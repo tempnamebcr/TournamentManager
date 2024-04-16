@@ -9,9 +9,13 @@ import { useState, useEffect } from 'react';
 import { Head, useForm } from '@inertiajs/react';
 import useScript from '../../Hooks/useScript';
 import PrimaryButton from '@/Components/PrimaryButton';
+import TimerComponent from '@/Components/TimerComponent';
+import UploadPhotoButton from '@/Components/UploadPhotoButton';
+import { router } from '@inertiajs/react'
 
 export default function Single({ tournament, auth, messages, game }) {
-
+    const { data, setData, post, processing, errors, reset } = useForm({
+    });
     //calcul timp turneu
     const timpActual = new Date();
     const oreMinute = tournament.hour.split(":");
@@ -123,23 +127,43 @@ export default function Single({ tournament, auth, messages, game }) {
                             </div>
                         </div>
                         {/* VERSUS */}
-                        { tournament.type == "Versus" &&
+                        { tournament.type == "Single" &&
                             <VersusUsers users={users}></VersusUsers>
                         }
                         {/* END VERSUS */}
-                        <div className="flex">
-                            <div className={`mx-auto my-0 ${clasaCuloare}`}>
-                                {tournament.date.split(' ')[0]}
+                        {
+                            !tournament.started &&
+                            <div className="flex">
+                                <div className={`mx-auto my-0 ${clasaCuloare}`}>
+                                    {tournament.date.split(' ')[0]}
+                                </div>
                             </div>
-                        </div>
-                        <div className="flex">
-                            <div className={`mx-auto my-0 ${clasaCuloare}`}>
-                                {tournament.hour}
+                        }
+                        {
+                            !tournament.started &&
+                            <div className="flex">
+                                <div className={`mx-auto my-0 ${clasaCuloare}`}>
+                                    {tournament.hour}
+                                </div>
                             </div>
-                        </div>
+                        }
+                        {
+                            tournament.started && !tournament.ended &&
+                            <TimerComponent tournament={tournament} ended={false}></TimerComponent>
+                        }
+                        {
+                            tournament.ended &&
+                            <TimerComponent tournament={tournament} ended={true}></TimerComponent>
+                        }
                         <div className="flex justify-end">
-                            {auth.user.isAdmin ? <PrimaryButton >Start tournament</PrimaryButton> : ""}
-                            {!auth.user.isAdmin ? <PrimaryButton >waiting for players..</PrimaryButton> : ""}
+                            {auth.user.isAdmin  && !tournament.started ? <PrimaryButton onClick={() => post(route('tournaments.startTournament', [tournament.id]))}>Start tournament</PrimaryButton> : ""}
+                            {auth.user.isAdmin  && tournament.started && !tournament.ended ? <PrimaryButton disabled={true}>Waiting for the finish</PrimaryButton> : ""}
+                            {auth.user.isAdmin  && tournament.ended  && tournament.winnable_id == 0 ? <PrimaryButton onClick={() => router.visit(route('tournaments.completedTournament', [tournament.id, {tournament:tournament, users:users}]))}>Give prizes</PrimaryButton> : ""}
+                            {auth.user.isAdmin  && tournament.ended && tournament.winnable_id != 0 ? <PrimaryButton disabled={true}>Completed</PrimaryButton> : ""}
+                            {!auth.user.isAdmin  && !tournament.started ? <PrimaryButton >waiting for players..</PrimaryButton> : ""}
+                            {!auth.user.isAdmin  && tournament.started  && !tournament.ended ? <UploadPhotoButton tournament={tournament}/> : ""}
+                            {!auth.user.isAdmin  && tournament.ended && tournament.winnable_id == 0 ? <PrimaryButton disabled={true}>Waiting for the prizes</PrimaryButton> : ""}
+                            {!auth.user.isAdmin  && tournament.ended && tournament.winnable_id != 0 ? <PrimaryButton disabled={true}>Tournament completed</PrimaryButton> : ""}
                         </div>
                     </div>
 

@@ -9,9 +9,13 @@ import { useState, useEffect } from 'react';
 import { Head, useForm } from '@inertiajs/react';
 import useScript from '../../Hooks/useScript';
 import PrimaryButton from '@/Components/PrimaryButton';
+import TimerComponent from '@/Components/TimerComponent';
+import UploadPhotoButton from '@/Components/UploadPhotoButton';
+import { router } from '@inertiajs/react'
 
-export default function Team({ tournament, auth, messages, game, team, firstTeam, secondTeam }) {
-
+export default function TeamShow({ tournament, auth, messages, game, team, firstTeam, secondTeam, currentTournamentTeam }) {
+    const { data, setData, post, processing, errors, reset } = useForm({
+    });
     //calcul timp turneu
     const timpActual = new Date();
     const oreMinute = tournament.hour.split(":");
@@ -126,13 +130,13 @@ export default function Team({ tournament, auth, messages, game, team, firstTeam
                         </div>
                         {/* TEAM */}
                         {
-                            tournament.type=="Team" && !secondTeam &&
+                             !secondTeam &&
                             <Team users={users.filter((user) =>
                                 user.teams.some((team) => team.id === firstTeam.id)
                             )} team={firstTeam} />
                         }
                         {
-                            tournament.type=="Team" && secondTeam &&
+                             secondTeam &&
                             <Team
                                 users={users.filter((user) =>
                                     user.teams.some((team) => team.id === firstTeam.id) && !user.teams.some((team) => team.id === secondTeam.id)
@@ -141,19 +145,20 @@ export default function Team({ tournament, auth, messages, game, team, firstTeam
                             />
                         }
                         {
-                            tournament.type=="Team" &&
+
                             <div className="flex justify-center">
                                 VS
                             </div>
                         }
                         {
-                            tournament.type=="Team" && secondTeam != null &&
+                             secondTeam != null &&
                             <Team users={users.filter((user) =>
                                 user.teams.some((team) => team.id === secondTeam.id)
                             )} team={secondTeam} />
                         }
                         {/* ENDTEAM */}
-                        {   !tournament.started &&
+                        {
+                            !tournament.started &&
                             <div className="flex">
                                 <div className={`mx-auto my-0 ${clasaCuloare}`}>
                                     {tournament.date.split(' ')[0]}
@@ -169,12 +174,22 @@ export default function Team({ tournament, auth, messages, game, team, firstTeam
                             </div>
                         }
                         {
-                            tournament.started &&
-                            <p>a</p>
+                            tournament.started && !tournament.ended &&
+                            <TimerComponent tournament={tournament} ended={false}></TimerComponent>
+                        }
+                        {
+                            tournament.ended &&
+                            <TimerComponent tournament={tournament} ended={true}></TimerComponent>
                         }
                         <div className="flex justify-end">
-                            {auth.user.isAdmin ? <PrimaryButton >Start tournament</PrimaryButton> : ""}
-                            {!auth.user.isAdmin ? <PrimaryButton >waiting for players..</PrimaryButton> : ""}
+                            {auth.user.isAdmin  && !tournament.started ? <PrimaryButton onClick={() => post(route('tournaments.startTournament', [tournament.id]))}>Start tournament</PrimaryButton> : ""}
+                            {auth.user.isAdmin  && tournament.started && !tournament.ended ? <PrimaryButton disabled={true}>Waiting for the finish</PrimaryButton> : ""}
+                            {auth.user.isAdmin  && tournament.ended  && tournament.winnable_id == 0 ? <PrimaryButton onClick={() => router.visit(route('tournaments.completedTournament', [tournament.id, {tournament:tournament, users:users}]))}>Give prizes</PrimaryButton> : ""}
+                            {auth.user.isAdmin  && tournament.ended && tournament.winnable_id != 0 ? <PrimaryButton disabled={true}>Completed</PrimaryButton> : ""}
+                            {!auth.user.isAdmin  && !tournament.started ? <PrimaryButton >waiting for players..</PrimaryButton> : ""}
+                            {!auth.user.isAdmin  && tournament.started  && !tournament.ended ? <UploadPhotoButton tournament={tournament}/> : ""}
+                            {!auth.user.isAdmin  && tournament.ended && tournament.winnable_id == 0 ? <PrimaryButton disabled={true}>Waiting for the prizes</PrimaryButton> : ""}
+                            {!auth.user.isAdmin  && tournament.ended && tournament.winnable_id != 0 ? <PrimaryButton disabled={true}>Tournament completed</PrimaryButton> : ""}
                         </div>
                     </div>
 

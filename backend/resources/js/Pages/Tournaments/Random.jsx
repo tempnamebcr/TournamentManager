@@ -14,6 +14,8 @@ import UploadPhotoButton from '@/Components/UploadPhotoButton';
 import { router } from '@inertiajs/react'
 
 export default function Random({ tournament, auth, messages, game, team, firstTeam, secondTeam }) {
+    const { data, setData, post, processing, errors, reset } = useForm({
+    });
 
     //calcul timp turneu
     const timpActual = new Date();
@@ -137,6 +139,14 @@ export default function Random({ tournament, auth, messages, game, team, firstTe
                             !tournament.started &&
                             <div className="flex">
                                 <div className={`mx-auto my-0 ${clasaCuloare}`}>
+                                    {tournament.date.split(' ')[0]}
+                                </div>
+                            </div>
+                        }
+                        {
+                            !tournament.started &&
+                            <div className="flex">
+                                <div className={`mx-auto my-0 ${clasaCuloare}`}>
                                     {tournament.hour}
                                 </div>
                             </div>
@@ -150,24 +160,26 @@ export default function Random({ tournament, auth, messages, game, team, firstTe
                             <TimerComponent tournament={tournament} ended={true}></TimerComponent>
                         }
                         <div className="flex justify-end">
-                            {auth.user.isAdmin  && !tournament.started ? <PrimaryButton >Start tournament</PrimaryButton> : ""}
+                            {auth.user.isAdmin  && !tournament.started ? <PrimaryButton onClick={() => post(route('tournaments.startTournament', [tournament.id]))}>Start tournament</PrimaryButton> : ""}
                             {auth.user.isAdmin  && tournament.started && !tournament.ended ? <PrimaryButton disabled={true}>Waiting for the finish</PrimaryButton> : ""}
-                            {auth.user.isAdmin  && tournament.ended ? <PrimaryButton onClick={() => router.visit(route('tournaments.completedTournament', [tournament.id, {tournament:tournament, users:users}]))}>Give prizes</PrimaryButton> : ""}
+                            {auth.user.isAdmin  && tournament.ended  && tournament.winnable_id == 0 ? <PrimaryButton onClick={() => router.visit(route('tournaments.completedTournament', [tournament.id, {tournament:tournament, users:users}]))}>Give prizes</PrimaryButton> : ""}
+                            {auth.user.isAdmin  && tournament.ended && tournament.winnable_id != 0 ? <PrimaryButton disabled={true}>Completed</PrimaryButton> : ""}
                             {!auth.user.isAdmin  && !tournament.started ? <PrimaryButton >waiting for players..</PrimaryButton> : ""}
                             {!auth.user.isAdmin  && tournament.started  && !tournament.ended ? <UploadPhotoButton tournament={tournament}/> : ""}
-                            {!auth.user.isAdmin  && tournament.ended ? <PrimaryButton disabled={true}>Waiting for the prizes</PrimaryButton> : ""}
+                            {!auth.user.isAdmin  && tournament.ended && tournament.winnable_id == 0 ? <PrimaryButton disabled={true}>Waiting for the prizes</PrimaryButton> : ""}
+                            {!auth.user.isAdmin  && tournament.ended && tournament.winnable_id != 0 ? <PrimaryButton disabled={true}>Tournament completed</PrimaryButton> : ""}
                         </div>
                     </div>
 
                     <div className="p-4 sm:p-8 bg-white shadow sm:rounded-lg h-96">
                         <ChatBox messages={stateMessage} currentUser={auth.user}></ChatBox>
+                    </div>
+
+                    <div className="p-4 sm:p-8 bg-white shadow sm:rounded-lg">
                         <ChatInput form={form}
                             onInputChange={handleInputChange}
                             method={submitMessage}>
                         </ChatInput>
-                    </div>
-
-                    <div className="p-4 sm:p-8 bg-white shadow sm:rounded-lg">
                     </div>
                 </div>
             </div>

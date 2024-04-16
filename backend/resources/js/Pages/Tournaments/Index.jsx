@@ -33,11 +33,9 @@ export default function Index({ auth, tournaments, teams }) {
             ignoreRowClick: true,
         },
         {
-            cell: (row) => <button onClick={() => router.visit(route('tournaments.show', row.id))}>Join</button>,
-        },
-        {
-            cell: (row) =>
-                <div>
+            cell: (row) => row.type != "Team" ?
+                <button onClick={() => router.visit(route('tournaments.show', row.id))}>Join</button>
+                : <div>
                     <button onClick={() => selectTeam(row.id)}>Join</button>
                         <div>
                             <select onChange={(e) => handleTeamChange(row.id, e.target.value)} id={"select"+row.id} style={{display:"none"}}>
@@ -47,9 +45,9 @@ export default function Index({ auth, tournaments, teams }) {
                                 ))}
                             </select>
                         </div>
-                </div>,
-            ignoreRowClick: true,
+                    </div>
         },
+
 
     ];
     const handleDelete = (id) => {

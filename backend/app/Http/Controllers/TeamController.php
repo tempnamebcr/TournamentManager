@@ -18,8 +18,11 @@ class TeamController extends Controller
      */
     public function index()
     {
-        // dd(Team::all());
-        return Inertia::render('Teams/Index', ['status' => session('status'), 'teams' => Team::all()]);
+        $userId = auth()->user()->id;
+        $teams = Team::whereHas('users', function ($query) use ($userId) {
+            $query->where('user_id', $userId);
+        })->get();
+        return Inertia::render('Teams/Index', ['status' => session('status'), 'teams' => $teams]);
     }
 
     /**

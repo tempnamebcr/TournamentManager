@@ -61,6 +61,7 @@ Route::post('/tournaments/{id}/finishTournament', [TournamentController::class, 
 Route::get('/tournaments/{id}/completedTournament', [TournamentController::class, 'completedTournament'])->name('tournaments.completedTournament');
 Route::post('/tournaments/{id}/uploadPhoto', [TournamentController::class, 'uploadPhoto'])->name('tournaments.uploadPhoto');
 Route::post('/tournaments/{id}/getCount', [TournamentController::class, 'getCount'])->name('tournaments.getCount');
+Route::post('/tournaments/{id}/givePrizes', [TournamentController::class, 'givePrizes'])->name('tournaments.givePrizes');
 Route::resource('tournaments', TournamentController::class);
 Route::get('permissions/initial', [RoleController::class, 'initial'])->name('permissions.initial');
 Route::resource('permissions', RoleController::class);
