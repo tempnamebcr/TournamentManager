@@ -6,6 +6,7 @@ use App\Events\NewChatMessageEvent;
 use App\Events\TournamentCreated;
 use App\Http\Controllers\Controller;
 use App\Models\Message;
+use App\Models\RandomTournamentTeam;
 use App\Models\Team;
 use App\Models\TournamentPlayer;
 use App\Models\TournamentTeam;
@@ -186,12 +187,26 @@ class TournamentController extends Controller
     {
         $tournament = Tournament::where('id', $id)->first();
         $tournament->started = Carbon::now();
-
+        dd($request);
+        $users = $request->users;
         //todo take the fee from the players
 
-        // if ($tournament->type == "Random"){
-
-        // }
+        if ($tournament->type == "Random"){
+            RandomTournamentTeam::create(
+                [
+                    "tournament_id"=> $tournament->id,
+                    "first_user_id" => 0,
+                    "second_user_id" => 0,
+                ]
+            );
+            RandomTournamentTeam::create(
+                [
+                    "tournament_id"=> $tournament->id,
+                    "first_user_id" => 0,
+                    "second_user_id" => 0,
+                ]
+            );
+        }
         // if ($tournament->type == "Single"){
 
         // }
@@ -221,9 +236,21 @@ class TournamentController extends Controller
     public function completedTournament(Request $request, $id){
         $tournament = Tournament::where("id", $id)->first();
         $users = $request->users;
+        $teams = null;
+        $random_teams =  null;
+        if ($tournament->type=="Random"){
+            $random_teams = RandomTournamentTeam::where("tournament_id", $tournament->id)->get();
+        }
+        if($tournament->type=="Team"){
+            $tournament_teams = TournamentTeam::where("tournament_id", $tournament->id)->first();
+            $teams = [];
+            $first_team = Team::where("id", $tournament_teams->first_team_id)->first();
+            $second_team = Team::where("id", $tournament_teams->second_team_id)->first();
+            array_push($teams, $first_team);
+            array_push($teams, $second_team);
+        }
         //todo daca nu esti admin sau nu s-a finalizat turneul, n-ai voie pe ruta
-
-        return Inertia::render('Tournaments/Completed', ['tournament' => $tournament, 'users' => $users]);
+        return Inertia::render('Tournaments/Completed', ['tournament' => $tournament, 'users' => $users, 'teams'=>$teams, 'random_teams'=>$random_teams]);
     }
     public function givePrizes(Request $request, $id){
         $users = $request->users;
@@ -231,12 +258,33 @@ class TournamentController extends Controller
 
         $tournament->winnable_id = intval($request->winner);
         $tournament->save();
-        // if ($tournament->type == "Random"){
-            //sa fie creata random team si sa fie pusa ea ca winner
-        // }
-        // if ($tournament->type == "Team"){
-            //winner sa fie echipa; poate sa fac un select multiplu cu winner ids?
-        // }
+        $array_of_winners = [];
+        if($tournament->type=="Single"){
+            array_push($array_of_winners, intval($request->winner));
+        }
+        if ($tournament->type == "Random"){
+            // sa fie creata random team si sa fie pusa ea ca winner
+            $random_team = RandomTournamentTeam::where('id', intval($request->winner))->first();
+            $first_user = User::where('id', $random_team->first_user_id)->first();
+            $second_user = User::where('id', $random_team->second_user_id)->first();
+            array_push($array_of_winners, $first_user->id);
+            array_push($array_of_winners, $second_user->id);
+        }
+        if ($tournament->type == "Team"){
+            // winner sa fie echipa; poate sa fac un select multiplu cu winner ids?
+            $team = Team::where("id", intval($request->winner))->first();
+            $team->games_won ++ ;
+            $team->save();
+            $tournament_team = TournamentTeam::where("tournament_id", $tournament->id)->first();
+            if(intval($request->winner) == $tournament_team->first_team_id){
+                array_push($array_of_winners, $tournament_team->first_user_id);
+                array_push($array_of_winners, $tournament_team->second_user_id);
+            }
+            else {
+                array_push($array_of_winners, $tournament_team->third_user_id);
+                array_push($array_of_winners, $tournament_team->fourth_user_id);
+            }
+        }
         foreach( $users as $usr){
             TournamentPlayer::create(
                 [
@@ -249,8 +297,10 @@ class TournamentController extends Controller
             );
             $user = User::where('id', $usr['id'])->first();
             //todo calculate experience, lv up and all
+            $user->currency-=$tournament->participation_fee;
             if($user->id == $request->winner){
                 $user->experience+= 100;
+                $user->currency+=$tournament->prize;
             }
             $user->experience+=100;
             if ($user->experience >= 500){

@@ -160,7 +160,7 @@ export default function Random({ tournament, auth, messages, game, team, firstTe
                             <TimerComponent tournament={tournament} ended={true}></TimerComponent>
                         }
                         <div className="flex justify-end">
-                            {auth.user.isAdmin  && !tournament.started ? <PrimaryButton onClick={() => post(route('tournaments.startTournament', [tournament.id]))}>Start tournament</PrimaryButton> : ""}
+                            {auth.user.isAdmin  && !tournament.started ? <PrimaryButton onClick={() => post(route('tournaments.startTournament', [tournament.id, {users:users}]))}>Start tournament</PrimaryButton> : ""}
                             {auth.user.isAdmin  && tournament.started && !tournament.ended ? <PrimaryButton disabled={true}>Waiting for the finish</PrimaryButton> : ""}
                             {auth.user.isAdmin  && tournament.ended  && tournament.winnable_id == 0 ? <PrimaryButton onClick={() => router.visit(route('tournaments.completedTournament', [tournament.id, {tournament:tournament, users:users}]))}>Give prizes</PrimaryButton> : ""}
                             {auth.user.isAdmin  && tournament.ended && tournament.winnable_id != 0 ? <PrimaryButton disabled={true}>Completed</PrimaryButton> : ""}

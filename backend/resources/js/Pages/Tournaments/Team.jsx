@@ -30,6 +30,7 @@ export default function TeamShow({ tournament, auth, messages, game, team, first
         valid=false;
     }
     console.log(tournament.type)
+    console.log(currentTournamentTeam)
 
     let [stateMessage, setStateMessage] = useState(messages);
     const [body, setBody] = useState('');
@@ -129,7 +130,8 @@ export default function TeamShow({ tournament, auth, messages, game, team, first
                             </div>
                         </div>
                         {/* TEAM */}
-                        {
+                        {/* INITIAL USERS MAP */}
+                        {/* {
                              !secondTeam &&
                             <Team users={users.filter((user) =>
                                 user.teams.some((team) => team.id === firstTeam.id)
@@ -143,6 +145,14 @@ export default function TeamShow({ tournament, auth, messages, game, team, first
                                 )}
                                 team={firstTeam}
                             />
+                        } */}
+                        { firstTeam &&
+                            <Team
+                                users={users.filter((user) =>
+                                    user.id !== currentTournamentTeam.third_user_id || user.id !== currentTournamentTeam.fourth_user_id
+                                )}
+                                team={firstTeam}
+                            />
                         }
                         {
 
@@ -150,12 +160,21 @@ export default function TeamShow({ tournament, auth, messages, game, team, first
                                 VS
                             </div>
                         }
-                        {
+                        { secondTeam &&
+                            <Team
+                                users={users.filter((user) =>
+                                    user.id === currentTournamentTeam.third_user_id || user.id === currentTournamentTeam.fourth_user_id
+                                )}
+                                team={secondTeam}
+                            />
+                        }
+                        {/* INITIAL USERS MAP */}
+                        {/* {
                              secondTeam != null &&
                             <Team users={users.filter((user) =>
                                 user.teams.some((team) => team.id === secondTeam.id)
                             )} team={secondTeam} />
-                        }
+                        } */}
                         {/* ENDTEAM */}
                         {
                             !tournament.started &&

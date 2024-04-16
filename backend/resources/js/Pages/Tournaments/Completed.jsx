@@ -14,10 +14,10 @@ import 'react-clock/dist/Clock.css';
 import TimePicker from 'react-time-picker';
 
 
-export default function Completed({ auth, games, tournament, users, teams }) {
+export default function Completed({ auth, games, tournament, users, teams, randomTeams }) {
 
     const { flash } = usePage().props
-
+    console.log(teams)
     const { data, setData, post, processing, errors, reset } = useForm({
         tournament:tournament,
         users:[],
@@ -64,8 +64,14 @@ export default function Completed({ auth, games, tournament, users, teams }) {
                                 required
                             >
                                 <option value="none">--</option>
-                                {users && users.map(user =>(
+                                {users &&  teams==null && randomTeams==null && users.map(user =>(
                                     <option value={user.id}>{user.username}</option>
+                                ))}
+                                {teams && teams.map(team => (
+                                    <option value={team.id}>{team.name}</option>
+                                ))}
+                                {randomTeams!=null && randomTeams.map(randomTeam, i => (
+                                    <option value={randomTeam.id}>{i == 0 && "First"}{i==1 && "Second"}</option>
                                 ))}
                             </select>
 
