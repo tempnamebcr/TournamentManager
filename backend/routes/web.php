@@ -8,6 +8,8 @@ use App\Http\Controllers\TeamController;
 use App\Http\Controllers\TournamentController;
 use App\Http\Controllers\RoleController;
 use App\Http\Controllers\NotificationController;
+use App\Models\Tournament;
+use App\Models\TournamentPlayer;
 use Illuminate\Foundation\Application;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
@@ -33,7 +35,14 @@ Route::get('/', function () {
 });
 
 Route::get('/dashboard', function () {
-    return Inertia::render('Dashboard');
+    // $user = auth()->user();
+    $data = [
+        $amount_won = TournamentPlayer::where('user_id', auth()->user()->id)->sum('amount_won'),
+        $fee_paid = TournamentPlayer::where('user_id', auth()->user()->id)->sum('fee_paid'),
+        $tournamentIds = TournamentPlayer::where('user_id', auth()->user()->id)->pluck('tournament_id'),
+        $tournaments = Tournament::whereIn('id', $tournamentIds)->get(),
+    ];
+    return Inertia::render('Dashboard', ['data' => $data]);
 })->middleware(['auth', 'verified'])->name('dashboard');
 
 Route::middleware('auth')->group(function () {
