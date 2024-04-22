@@ -11,5 +11,9 @@ class TournamentPlayer extends Model
     protected $guarded = [];
     protected $table = "tournament_players";
     public $timestamps = false;
+
+    public function tournament()
+    {
+        return $this->belongsTo(Tournament::class, 'tournament_id');
+    }
 }
-    

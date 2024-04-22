@@ -13,6 +13,7 @@ export default function Authenticated({ user, header, children }) {
     let { notifications, readNotifications, unreadNotifications} = auth;
     const [notifCount, setNotifCount] = useState(unreadNotifications.length);
     const [showingNavigationDropdown, setShowingNavigationDropdown] = useState(false);
+    useScript("https://cdn.jsdelivr.net/npm/sweetalert2@11");
     useScript("https://js.pusher.com/8.2.0/pusher.min.js");
     useScript("https://code.jquery.com/jquery-3.7.1.js");
     useScript("https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js");
@@ -106,7 +107,7 @@ export default function Authenticated({ user, header, children }) {
                                         </span>
                                     </Dropdown.Trigger>
                                     {notifications.length > 0 &&
-                                        <Dropdown.Content>
+                                        <Dropdown.Content width={'96'}>
                                             <Dropdown.Link class="block px-4 py-2 text-sm leading-5 text-gray-700 hover:bg-gray-300 focus:outline-none focus:bg-gray-100 transition duration-150 ease-in-out" href={route('notifications.update')}>Mark all as read</Dropdown.Link>
                                             <div className="border-t border-gray-100"></div>
                                             <Notifications reads={readNotifications} unreads={unreadNotifications} />
@@ -114,7 +115,7 @@ export default function Authenticated({ user, header, children }) {
                                     }
                                     {
                                         notifications.length == 0 &&
-                                        <Dropdown.Content>
+                                        <Dropdown.Content width={'64'}>
                                             <Dropdown.Link class="block px-4 py-2 text-sm leading-5 text-gray-700 hover:bg-gray-300 focus:outline-none focus:bg-gray-100 transition duration-150 ease-in-out" href="#">You have no new notifications.</Dropdown.Link>
                                             <div className="border-t border-gray-100"></div>
                                         </Dropdown.Content>
@@ -130,7 +131,7 @@ export default function Authenticated({ user, header, children }) {
                                                 type="button"
                                                 className="inline-flex items-center px-3 py-2 border border-transparent text-sm leading-4 font-medium rounded-md text-gray-500 bg-white hover:text-gray-700 focus:outline-none transition ease-in-out duration-150"
                                             >
-                                                {user.name}
+                                                {user.username}
 
                                                 <svg
                                                     className="ms-2 -me-0.5 h-4 w-4"

@@ -35,12 +35,14 @@ Route::get('/', function () {
 });
 
 Route::get('/dashboard', function () {
-    // $user = auth()->user();
     $data = [
         $amount_won = TournamentPlayer::where('user_id', auth()->user()->id)->sum('amount_won'),
         $fee_paid = TournamentPlayer::where('user_id', auth()->user()->id)->sum('fee_paid'),
-        $tournamentIds = TournamentPlayer::where('user_id', auth()->user()->id)->pluck('tournament_id'),
-        $tournaments = Tournament::whereIn('id', $tournamentIds)->get(),
+        $tournamentIds = TournamentPlayer::with('tournament')->where('user_id', auth()->user()->id)->orderBy('id', 'desc')->get(),
+        $stats = TournamentPlayer::where('user_id', auth()->user()->id)->get('final_score'),
+        // $tournamentIds = TournamentPlayer::where('user_id', auth()->user()->id)->pluck('tournament_id'),
+        // $tournaments = Tournament::whereIn('id', $tournamentIds)->get(),
+
     ];
     return Inertia::render('Dashboard', ['data' => $data]);
 })->middleware(['auth', 'verified'])->name('dashboard');
@@ -51,6 +53,8 @@ Route::middleware('auth')->group(function () {
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
 });
 
+Route::post('users/ban/{id}', [UserController::class, 'ban'])->name('users.ban');
+Route::get('users/{id}/is-banned', [UserController::class, 'isBanned'])->name('users.is-banned');
 Route::resource('users', UserController::class);
 Route::post('friends/deny/{id}', [FriendController::class, 'deny'])->name('friends.deny');
 Route::post('friends/accept/{id}', [FriendController::class, 'accept'])->name('friends.accept');

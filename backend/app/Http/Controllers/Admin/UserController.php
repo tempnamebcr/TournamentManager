@@ -3,7 +3,9 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Models\BannedPlayer;
 use App\Models\User;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 
@@ -67,5 +69,23 @@ class UserController extends Controller
     public function destroy(string $id)
     {
         //
+    }
+    public function ban(Request $request, $id)
+    {
+        BannedPlayer::create([
+            'admin_id' => auth()->user()->id,
+            'user_id' => $id,
+            'reason' => '',
+            'period' => Carbon::now()->addDays(7)
+        ]);
+    }
+    public function isBanned($id)
+    {
+        $banned = BannedPlayer::where('user_id', $id)->latest()->first();
+        if ($banned == null) {
+            return response()->json(['banned' => false]);
+        }
+
+        return response()->json(['banned' => $banned->period > Carbon::now()]);
     }
 }

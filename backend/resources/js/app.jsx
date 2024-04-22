@@ -18,4 +18,13 @@ createInertiaApp({
     progress: {
         color: '#4B5563',
     },
+    head: {
+        link: [
+            {
+                rel: 'icon',
+                type: 'image/png',
+                href: 'storage/logo/logo.png'
+            }
+        ]
+    }
 });

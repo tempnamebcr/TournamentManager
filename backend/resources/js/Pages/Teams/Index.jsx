@@ -3,6 +3,7 @@ import { Head } from '@inertiajs/react';
 import { router } from '@inertiajs/react'
 import PrimaryButton from '@/Components/PrimaryButton';
 import DataTable from 'react-data-table-component';
+import SecondaryButton from '@/Components/SecondaryButton';
 
 const columns = [
 	{
@@ -10,7 +11,7 @@ const columns = [
 		selector: row => row.name,
 	},
     {
-        cell: (row) => <button onClick={() => handleDelete(row.id)}>Delete</button>,
+        cell: (row) => <SecondaryButton onClick={() => handleDelete(row.id)}>Delete</SecondaryButton>,
         ignoreRowClick: true,
     },
 ];

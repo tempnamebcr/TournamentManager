@@ -11,6 +11,7 @@ export default function Index({ auth, users, friends, reqSentTo, pending }) {
     const [currRoute, setCurrRoute] = useState('');
     const { data, setData, post, processing, errors, reset } = useForm({
         id: 0,
+        // reason: ''
     });
     const columns = [
         {
@@ -22,13 +23,13 @@ export default function Index({ auth, users, friends, reqSentTo, pending }) {
             selector: row => row.level
         },
         {
-            cell: (row) => <button onClick={() => handleDelete(row.id)}>Delete</button>,
+            cell: (row) => <SecondaryButton onClick={() => handleDelete(row.id)}>Ban</SecondaryButton>,
             ignoreRowClick: true,
         },
         {
             cell: (row) => {
                 if (reqSentTo.includes(row.id)) {
-                    return "Sent";
+                    return <PrimaryButton disabled={true}>Sent</PrimaryButton>;
                 }
                 if (pending.includes(row.id)) {
                     return (
@@ -39,10 +40,10 @@ export default function Index({ auth, users, friends, reqSentTo, pending }) {
                     );
                 }
                 if (!friends.includes(row.id)) {
-                    return <button onClick={(e) => addFriend(e, row.id)}>Add friend</button>;
+                    return <PrimaryButton onClick={(e) => addFriend(e, row.id)}>Add friend</PrimaryButton>;
                 }
                 else {
-                    return "Friend";
+                    return <PrimaryButton disabled={true}>Friend</PrimaryButton>;
                 }
             }
         },
@@ -53,6 +54,10 @@ export default function Index({ auth, users, friends, reqSentTo, pending }) {
         setData('id', id);
     };
 
+    // const handleInputChange = (event) => {
+    //     setData('reason', event.target.value);
+    // };
+
     const handleReject = (id) => {
         // fetch(route('friends.reject', { id: id }), {
         setCurrRoute('deny');
@@ -60,7 +65,28 @@ export default function Index({ auth, users, friends, reqSentTo, pending }) {
     };
 
     const handleDelete = (id) => {
-        console.log('Row with ID:', id, 'deleted');
+        Swal.fire({
+            title: 'Are you sure?',
+            icon: 'warning',
+            // html: `<input id="swal-input1" class="swal2-input" placeholder="Enter reason" onInput={(event) => setData('reason', event.target.value)}>`,
+            showCancelButton: true,
+            confirmButtonText: 'Yes',
+            cancelButtonText: 'No',
+            preConfirm: () => {
+                // let reas = document.getElementById('swal-input1').value;
+                // setData('reason' , reas);
+            }
+          }).then((result) => {
+            if (result.isConfirmed) {
+              setCurrRoute('ban');
+              setData('id', id);
+              Swal.fire(
+                'Banned!',
+                'The user has been banned for a week',
+                'success'
+              )
+            }
+          })
     };
     const addFriend = (e, id) => {
         e.preventDefault();
@@ -69,13 +95,15 @@ export default function Index({ auth, users, friends, reqSentTo, pending }) {
     };
 
     useEffect(() => {
-        console.log(data.id);
         if (data.id !== 0) {
             if(currRoute == "add"){
                 post(route('friends.store'));
             }
             else if(currRoute == "accept"){
                 post(route('friends.accept', {id : data.id}));
+            }
+            else if(currRoute == "ban"){
+                post(route('users.ban', { id: data.id}));
             }
             else if(currRoute == "deny"){
                 post(route('friends.deny', {id : data.id}));

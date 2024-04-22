@@ -4,12 +4,14 @@ import { router } from '@inertiajs/react'
 import PrimaryButton from '@/Components/PrimaryButton';
 import DataTable from 'react-data-table-component';
 import { useState, useEffect } from 'react';
+import SecondaryButton from '@/Components/SecondaryButton';
 
 
 
 
 
 export default function Index({ auth, tournaments, teams }) {
+    const [banned, setIsBanned] = useState(false);
     const [showDropdown, setShowDropdown] = useState(false);
     const columns = [
         {
@@ -29,14 +31,14 @@ export default function Index({ auth, tournaments, teams }) {
             selector: row => row.hour,
         },
         {
-            cell: (row) => <button onClick={() => handleDelete(row.id)}>Delete</button>,
+            cell: (row) => <SecondaryButton onClick={() => handleDelete(row.id)}>Delete</SecondaryButton>,
             ignoreRowClick: true,
         },
         {
             cell: (row) => row.type != "Team" ?
-                <button onClick={() => router.visit(route('tournaments.show', row.id))}>Join</button>
+                <PrimaryButton onClick={() => router.visit(route('tournaments.show', row.id))} disabled={banned}>Join</PrimaryButton>
                 : <div>
-                    <button onClick={() => selectTeam(row.id)}>Join</button>
+                    <PrimaryButton onClick={() => selectTeam(row.id)} disabled={banned}>Join</PrimaryButton>
                         <div>
                             <select onChange={(e) => handleTeamChange(row.id, e.target.value)} id={"select"+row.id} style={{display:"none"}}>
                                 <option value="">Select a team</option>
@@ -66,6 +68,20 @@ export default function Index({ auth, tournaments, teams }) {
     const handleTeamChange = (rowId, teamId) => {
         router.visit(route('tournaments.show', [rowId, {team_id :teamId}]))
     };
+
+    useEffect(() => {
+        const fetchIsBanned = async () => {
+            try {
+                const response = await axios.get(`/users/${auth.user.id}/is-banned`);
+                console.log(response);
+                setIsBanned(response.data.banned);
+            } catch (error) {
+                console.error('Error fetching isBanned:', error);
+            }
+        };
+
+        fetchIsBanned();
+    }, [auth.user.id]);
 
     return (
         <AuthenticatedLayout

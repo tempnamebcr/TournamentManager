@@ -25,13 +25,13 @@ export default function Index({ auth, friends, teams}) {
             selector: row => row.level
         },
         {
-            cell: (row) => <button onClick={() => handleDelete(row.id)}>Delete</button>,
+            cell: (row) => <SecondaryButton onClick={() => handleDelete(row.id)}>Delete</SecondaryButton>,
             ignoreRowClick: true,
         },
         {
             cell: (row) =>
                 <div>
-                    <button onClick={() => addToTeam(row.id)}>Add to team</button>
+                    <PrimaryButton onClick={() => addToTeam(row.id)}>Add to team</PrimaryButton>
                         <div>
                             <select value={selectedTeam} onChange={(e) => handleTeamChange(row.id, e.target.value)} id={"select"+row.id} style={{display:"none"}}>
                                 <option value="">Select a team</option>

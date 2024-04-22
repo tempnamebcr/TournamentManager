@@ -4,6 +4,7 @@ namespace App\Models;
 
 // use Illuminate\Contracts\Auth\MustVerifyEmail;
 use App\Traits\Friendable;
+use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
@@ -61,8 +62,9 @@ class User extends Authenticatable
     {
         return $this->belongsToMany(Tournament::class, 'tournament_players', 'user_id', 'team_id');
     }
-    public function playerDetails() : HasOne
+    public function playerDetails()
     {
         return $this->HasOne(PlayerDetails::class);
     }
+
 }
