@@ -9,6 +9,7 @@ use App\Http\Controllers\TournamentController;
 use App\Http\Controllers\RoleController;
 use App\Http\Controllers\NotificationController;
 use App\Models\Tournament;
+use App\Models\User;
 use App\Models\TournamentPlayer;
 use Illuminate\Foundation\Application;
 use Illuminate\Support\Facades\Route;
@@ -35,13 +36,69 @@ Route::get('/', function () {
 });
 
 Route::get('/dashboard', function () {
+    $maxUserKDA = DB::table('tournament_players')
+    ->select('user_id', DB::raw('GROUP_CONCAT(final_score) as final_scores'))
+    ->groupBy('user_id')
+    ->get();
+    $max = 0;
+    $max_user_id = null;
+    $max_user_score = null;
+    foreach($maxUserKDA as $user){
+        $scoresArray = explode(',', $user->final_scores);
+        $k = 0;
+        $d = 0;
+        $a = 0;
+        foreach ($scoresArray as $scoreSet) {
+            list($kills, $deaths, $assists) = explode('/', $scoreSet);
+            $k+=$kills;
+            $d+=$deaths;
+            $a+=$assists;
+        }
+        $kda = ($k+$a)/max(1, $d);
+        $scores_number = count($scoresArray);
+        if ($kda > $max){
+            $max = $kda;
+            $max_user_id = $user->user_id;
+            $max_user_score = ''. $k/$scores_number . '/' . $d/$scores_number . '/'. $a/$scores_number;
+        }
+    }
+    $usr = User::where('id', $max_user_id)->first();
+    $max_user = $usr->username;
+    //max amount won
+    $max_amount_won = DB::table('tournament_players')
+    ->select('user_id', DB::raw('MAX(amount_won) as max_amount_won'))
+    ->groupBy('user_id')
+    ->get();
+    $max_am = 0;
+    $max_am_user_name= '';
+    foreach($max_amount_won as $maw){
+        if ($maw->max_amount_won > $max){
+            $max_am = $maw->max_amount_won;
+            $max_am_user_name = User::where('id', $maw->user_id)->first()->username;
+        }
+    }
+    //most wins :
+    $most_wins = DB::table('tournament_players')
+            ->select('user_id', DB::raw('COUNT(*) as total_rows'))
+            ->where('amount_won', '!=', 0)
+            ->groupBy('user_id')
+            ->orderByDesc('total_rows')
+            ->get();
+    $most_wins_username = User::where('id', $most_wins[0]->user_id)->first()->username;
+    $no_of_wins = $most_wins[0]->total_rows;
     $data = [
         $amount_won = TournamentPlayer::where('user_id', auth()->user()->id)->sum('amount_won'),
         $fee_paid = TournamentPlayer::where('user_id', auth()->user()->id)->sum('fee_paid'),
         $tournamentIds = TournamentPlayer::with('tournament')->where('user_id', auth()->user()->id)->orderBy('id', 'desc')->get(),
         $stats = TournamentPlayer::where('user_id', auth()->user()->id)->get('final_score'),
-        // $tournamentIds = TournamentPlayer::where('user_id', auth()->user()->id)->pluck('tournament_id'),
-        // $tournaments = Tournament::whereIn('id', $tournamentIds)->get(),
+        $currency = auth()->user()->currency,
+        $max, //max kda
+        $max_user, //username for guy with max kda
+        $max_user_score, //note for future self this code is a crime against humanity, dar e seara si esti obosit
+        $max_am,
+        $max_am_user_name,
+        $no_of_wins,
+        $most_wins_username,
 
     ];
     return Inertia::render('Dashboard', ['data' => $data]);

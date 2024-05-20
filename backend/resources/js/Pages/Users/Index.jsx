@@ -5,6 +5,7 @@ import { router } from '@inertiajs/react'
 import PrimaryButton from '@/Components/PrimaryButton';
 import SecondaryButton from '@/Components/SecondaryButton';
 import DataTable from 'react-data-table-component';
+import InputLabel from '@/Components/InputLabel';
 
 
 export default function Index({ auth, users, friends, reqSentTo, pending }) {
@@ -13,6 +14,7 @@ export default function Index({ auth, users, friends, reqSentTo, pending }) {
         id: 0,
         // reason: ''
     });
+    const [search, setSearch] = useState('');
     const columns = [
         {
             name: 'username',
@@ -58,6 +60,10 @@ export default function Index({ auth, users, friends, reqSentTo, pending }) {
     //     setData('reason', event.target.value);
     // };
 
+    const handleSearchChange = (event) => {
+        setSearch(event.target.value);
+    };
+
     const handleReject = (id) => {
         // fetch(route('friends.reject', { id: id }), {
         setCurrRoute('deny');
@@ -88,6 +94,9 @@ export default function Index({ auth, users, friends, reqSentTo, pending }) {
             }
           })
     };
+    const handleSearch = () => {
+        router.get('/users', { search });
+    };
     const addFriend = (e, id) => {
         e.preventDefault();
         setCurrRoute('add');
@@ -109,6 +118,11 @@ export default function Index({ auth, users, friends, reqSentTo, pending }) {
                 post(route('friends.deny', {id : data.id}));
             }
         }
+        const urlParams = new URLSearchParams(window.location.search);
+        const searchParam = urlParams.get('search');
+        if (searchParam) {
+            setSearch(searchParam);
+        }
     }, [data.id]);
 
     return (
@@ -122,6 +136,14 @@ export default function Index({ auth, users, friends, reqSentTo, pending }) {
                 <div className="max-w-7xl mx-auto sm:px-6 lg:px-8">
                     <div className="py-6">
                         <PrimaryButton onClick={() => router.visit(route('users.create'))} id="add-games">Create</PrimaryButton>
+                        <InputLabel htmlFor="search">Search: </InputLabel>
+                        <input
+                            type="text"
+                            id="search"
+                            value={search}
+                            onChange={handleSearchChange}
+                        />
+                        <button onClick={handleSearch}>Search</button>
                     </div>
                     <div className="bg-white overflow-hidden shadow-sm sm:rounded-lg">
                         <DataTable

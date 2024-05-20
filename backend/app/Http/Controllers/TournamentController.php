@@ -29,7 +29,12 @@ class TournamentController extends Controller
      */
     public function index()
     {
-        return Inertia::render('Tournaments/Index', ['status' => session('status'), 'games' => Game::all(), 'tournaments' => Tournament::orderBy('created_at', 'desc')->get(), 'teams' =>auth()->user()->teams]);
+        $search = request()->search;
+        $tournaments = Tournament::where('name', 'like', "%$search%")
+                             ->orWhere('type', 'like', "%$search%")
+                             ->orderBy('created_at', 'desc')
+                             ->get();
+        return Inertia::render('Tournaments/Index', ['status' => session('status'), 'games' => Game::all(), 'tournaments' => $tournaments, 'teams' =>auth()->user()->teams]);
     }
 
     /**
@@ -187,7 +192,7 @@ class TournamentController extends Controller
     {
         $tournament = Tournament::where('id', $id)->first();
         $tournament->started = Carbon::now();
-        dd($request);
+        // dd($request);
         $users = $request->users;
         //todo take the fee from the players
 

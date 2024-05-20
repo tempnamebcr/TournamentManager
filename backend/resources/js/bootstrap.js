@@ -30,6 +30,7 @@ window.Echo = new Echo({
     forceTLS: (import.meta.env.VITE_PUSHER_SCHEME ?? 'https') === 'https',
     enabledTransports: ['ws', 'wss'],
 });
+
 //testing
 Pusher.log = function(message){
     window.console.log(message)

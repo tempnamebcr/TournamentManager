@@ -19,8 +19,9 @@ class UserController extends Controller
         $user = User::where("id", auth()->user()->id)->first();
         $friends = $user->friends_ids();
         $pendingFriendReq = $user->pending_friend_requests_ids();
+        $search = request()->search;
         $friendsReqSent = $user->pending_friend_requests_sent();
-        return Inertia::render('Users/Index', ['status' => session('status'), 'users' => User::where('id', '!=', $user->id)->get(), 'friends' => $friends, 'reqSentTo' => $friendsReqSent, 'pending' => $pendingFriendReq]);
+        return Inertia::render('Users/Index', ['status' => session('status'), 'users' => User::where('username', 'like', "%%$search%%")->where('id', '!=', $user->id)->get(), 'friends' => $friends, 'reqSentTo' => $friendsReqSent, 'pending' => $pendingFriendReq]);
     }
 
     /**

@@ -1,6 +1,8 @@
+import useLink from '@/Hooks/useLink';
 import { Link, Head } from '@inertiajs/react';
 
 export default function Welcome({ auth, laravelVersion, phpVersion }) {
+    useLink("stylesheet", "https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css")
     return (
         <>
             <Head title="Welcome" />
@@ -65,7 +67,7 @@ export default function Welcome({ auth, laravelVersion, phpVersion }) {
                                     </h2>
 
                                     <p className="mt-4 text-gray-500 dark:text-gray-400 text-sm leading-relaxed">
-                                        Join and play in the tournaments to compete for IGC (our currency). You can choose between playing solo tournaments, waiting for another user to make a team with you or by joining with your own team; Once the tournament starts, you will upload a photo with the results so our admins can upload the stats.
+                                        Join and play in the tournaments to compete for platform<b> currency</b><i class="fas fa-money-bill" style={{ color: 'green' }} aria-hidden="true"></i>. You can choose between playing solo tournaments, waiting for another user to make a team with you or by joining with your own team; Once the tournament starts, you will upload a photo with the results so our admins can upload the stats.
                                     </p>
                                 </div>
                             </a>

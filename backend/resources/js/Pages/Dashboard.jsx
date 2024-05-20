@@ -1,10 +1,12 @@
 import ExperienceBar from '@/Components/ExperienceBar';
+import useLink from '@/Hooks/useLink';
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
 import { Head, usePage } from '@inertiajs/react';
 import moment from 'moment';
 
 export default function Dashboard({ auth, data }) {
     console.log(data[3])
+    useLink("stylesheet", "https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css")
     const { averageKills, averageDeaths, averageAssists, kdaRatio } = calculateAverageAndKda(data[3]);
     function calculateAverageAndKda(data) {
         let totalKills = 0;
@@ -75,14 +77,14 @@ export default function Dashboard({ auth, data }) {
                             <img src={"storage/"+auth.user.image.location} alt="User Image" width="100" height="100"/>
                         )} , here are some stats from your previous tournaments:</div>
                         <div className="p-6 text-gray-900">
-                            <span>Level : {auth.user.level}</span>
+                            <span>Level : {auth.user.level} | <b>Currency:</b>{auth.user.currency}<i class="fas fa-money-bill" style={{ color: 'green' }} aria-hidden="true"></i></span>
                             <ExperienceBar experience={exp}></ExperienceBar>
                         </div>
                         <div className="p-6 text-gray-900">
-                            <span>Amount won : {data[0]} IGC</span>
+                            <span><b>Currency</b> won : {data[0]}<i class="fas fa-money-bill" style={{ color: 'green' }} aria-hidden="true"></i></span>
                         </div>
                         <div className="p-6 text-gray-900">
-                            <span>Amount paid : {data[1]} IGC</span>
+                            <span><b>Currency</b> paid on fees : {data[1]}<i class="fas fa-money-bill" style={{ color: 'green' }} aria-hidden="true"></i></span>
                         </div>
                         <div className="p-6 text-gray-900">
                             <span>Average score : {averageKills + "/" + averageDeaths + "/" + averageAssists} | KDA: {kdaRatio.toFixed(2)}</span>
@@ -104,6 +106,16 @@ export default function Dashboard({ auth, data }) {
                                     <p>Score: {tournament.final_score}</p>
                                 </div>
                             ))}
+                        </div>
+                        <div className="p-6 text-gray-900">
+                            <span>Some stats about the other players: </span>
+                            <span>Best KDA ratio: {data[5]} average score: {data[7]} user: {data[6]}</span>
+                        </div>
+                        <div className="p-6 text-gray-900">
+                            <span>Biggest winner : {data[9]} with : {data[8]}<i class="fas fa-money-bill" style={{ color: 'green' }} aria-hidden="true"></i></span>
+                        </div>
+                        <div className="p-6 text-gray-900">
+                            <span>Most wins : {data[10]} user : {data[11]}</span>
                         </div>
                     </div>
                 </div>

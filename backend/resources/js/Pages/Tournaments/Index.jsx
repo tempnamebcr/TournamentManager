@@ -5,14 +5,13 @@ import PrimaryButton from '@/Components/PrimaryButton';
 import DataTable from 'react-data-table-component';
 import { useState, useEffect } from 'react';
 import SecondaryButton from '@/Components/SecondaryButton';
-
-
-
+import InputLabel from '@/Components/InputLabel';
 
 
 export default function Index({ auth, tournaments, teams }) {
     const [banned, setIsBanned] = useState(false);
     const [showDropdown, setShowDropdown] = useState(false);
+    const [search, setSearch] = useState('');
     const columns = [
         {
             name: 'name',
@@ -24,11 +23,11 @@ export default function Index({ auth, tournaments, teams }) {
         },
         {
             name: 'date',
-            selector: row => row.date.split(/\s+/)[0],
+            selector: row => row.date.split(/\s+/)[0] + " " + row.hour,
         },
         {
-            name: 'hour',
-            selector: row => row.hour,
+            name: 'type',
+            selector: row => row.type,
         },
         {
             cell: (row) => <SecondaryButton onClick={() => handleDelete(row.id)}>Delete</SecondaryButton>,
@@ -55,6 +54,12 @@ export default function Index({ auth, tournaments, teams }) {
     const handleDelete = (id) => {
         console.log('Row with ID:', id, 'deleted');
     };
+    const handleSearchChange = (event) => {
+        setSearch(event.target.value);
+    };
+    const handleSearch = () => {
+        router.get('/tournaments', { search });
+    };
     const selectTeam = (id) => {
         setShowDropdown(!showDropdown)
         let select = document.querySelector('#select'+id);
@@ -79,6 +84,12 @@ export default function Index({ auth, tournaments, teams }) {
                 console.error('Error fetching isBanned:', error);
             }
         };
+        const urlParams = new URLSearchParams(window.location.search);
+        const searchParam = urlParams.get('search');
+        if (searchParam) {
+            setSearch(searchParam);
+        }
+
 
         fetchIsBanned();
     }, [auth.user.id]);
@@ -94,6 +105,14 @@ export default function Index({ auth, tournaments, teams }) {
                 <div className="max-w-7xl mx-auto sm:px-6 lg:px-8">
                     <div className="py-6">
                         <PrimaryButton onClick={() => router.visit(route('tournaments.create'))} id="add-games">Create</PrimaryButton>
+                        <InputLabel htmlFor="search">Search: </InputLabel>
+                        <input
+                            type="text"
+                            id="search"
+                            value={search}
+                            onChange={handleSearchChange}
+                        />
+                        <button onClick={handleSearch}>Search</button>
                     </div>
                     <div className="bg-white overflow-hidden shadow-sm sm:rounded-lg">
                         <DataTable
