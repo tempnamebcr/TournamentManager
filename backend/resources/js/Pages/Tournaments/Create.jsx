@@ -5,7 +5,7 @@ import PrimaryButton from '@/Components/PrimaryButton';
 import TextInput from '@/Components/TextInput';
 import { Head, Link, useForm } from '@inertiajs/react';
 import { usePage } from '@inertiajs/react';
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import Checkbox from '@/Components/Checkbox';
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
@@ -32,6 +32,11 @@ export default function Create({ auth, games }) {
         e.preventDefault();
         post(route('tournaments.store'));
     };
+    useEffect(() => {
+        if (flash.message) {
+            toastr.success(flash.message);
+        }
+      }, [flash]);
 
     return (
         <AuthenticatedLayout
@@ -101,6 +106,7 @@ export default function Create({ auth, games }) {
                                 onChange={(e) => setData('type', e.target.value)}
                                 required
                             >
+                                <option value="">Select</option>
                                 <option>Single</option>
                                 <option>Random</option>
                                 <option>Team</option>
@@ -108,12 +114,6 @@ export default function Create({ auth, games }) {
 
                             <InputError message={errors.name} className="mt-2" />
                         </div>
-
-                        {flash.message && (
-                            <div className="alert alert-success">
-                                {flash.message}
-                            </div>
-                        )}
 
                         <div>
                             <InputLabel htmlFor="fee" value="Fee" />

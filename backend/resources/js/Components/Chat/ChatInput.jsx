@@ -5,7 +5,7 @@ class ChatInput extends React.Component {
         const { form, method } = this.props;
 
         return (
-            <div className="flex flex-col items-end mt-5 px-3 py-3">
+            <div className="flex gap-x-3 items-end mt-5 px-3 py-3">
                 <input
                     type="text"
                     className="border rounded-md px-2 py-1 w-full"

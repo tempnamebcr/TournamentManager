@@ -1,4 +1,4 @@
-export default function SecondaryButton({ type = 'button', className = '', disabled, children, ...props }) {
+export default function SecondaryButton({ type = 'button', className = '', disabled, title, children, ...props }) {
     return (
         <button
             {...props}
@@ -9,6 +9,7 @@ export default function SecondaryButton({ type = 'button', className = '', disab
                 } ` + className
             }
             disabled={disabled}
+            title={title}
         >
             {children}
         </button>

@@ -6,6 +6,7 @@ import PrimaryButton from '@/Components/PrimaryButton';
 import SecondaryButton from '@/Components/SecondaryButton';
 import DataTable from 'react-data-table-component';
 import InputLabel from '@/Components/InputLabel';
+import ProfilePic from '@/Components/UserPicture';
 
 
 export default function Index({ auth, users, friends, reqSentTo, pending }) {
@@ -14,18 +15,19 @@ export default function Index({ auth, users, friends, reqSentTo, pending }) {
         id: 0,
         // reason: ''
     });
+    const [bannedUsers, setBannedUsers] = useState([]);
     const [search, setSearch] = useState('');
     const columns = [
         {
             name: 'username',
-            selector: row => row.username,
+            selector: row => <ProfilePic username={row.username} imgSrc={"storage/"+row.image.location} ></ProfilePic>,
         },
         {
             name: 'level',
-            selector: row => row.level
+            selector: row => <div class="ms-3 relative bg-red-500 text-white rounded px-2 py-1">LVL: {row.level}</div>
         },
         {
-            cell: (row) => <SecondaryButton onClick={() => handleDelete(row.id)}>Ban</SecondaryButton>,
+            cell: (row) => <SecondaryButton title={bannedUsers.includes(row.id) ? "Already banned" : ''}disabled={bannedUsers.includes(row.id)}onClick={() => handleDelete(row.id)}>Ban</SecondaryButton>,
             ignoreRowClick: true,
         },
         {
@@ -104,6 +106,15 @@ export default function Index({ auth, users, friends, reqSentTo, pending }) {
     };
 
     useEffect(() => {
+        const fetchBannedUsers= async () => {
+            try {
+                const response = await axios.get(`/users/fetch-banned`);
+                setBannedUsers(response.data.banned_players);
+            } catch (error) {
+                console.error('Error fetching isBanned:', error);
+            }
+        };
+        fetchBannedUsers()
         if (data.id !== 0) {
             if(currRoute == "add"){
                 post(route('friends.store'));
@@ -134,22 +145,21 @@ export default function Index({ auth, users, friends, reqSentTo, pending }) {
 
             <div className="py-12">
                 <div className="max-w-7xl mx-auto sm:px-6 lg:px-8">
-                    <div className="py-6">
-                        <PrimaryButton onClick={() => router.visit(route('users.create'))} id="add-games">Create</PrimaryButton>
-                        <InputLabel htmlFor="search">Search: </InputLabel>
+                    <div className="py-6 flex gap-x-2">
                         <input
+                            className='rounded-md'
                             type="text"
                             id="search"
+                            placeholder='username...'
                             value={search}
                             onChange={handleSearchChange}
                         />
-                        <button onClick={handleSearch}>Search</button>
+                        <PrimaryButton onClick={handleSearch}>Search</PrimaryButton>
                     </div>
                     <div className="bg-white overflow-hidden shadow-sm sm:rounded-lg">
                         <DataTable
                             columns={columns}
                             data={users}
-                            selectableRows
                             pagination
                         />
                     </div>

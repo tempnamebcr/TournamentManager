@@ -36,7 +36,8 @@ class NotificationController extends Controller
      */
     public function markAsRead($id) {
         $notification = auth()->user()->unreadNotifications->find($id);
-        return $notification->markAsRead();
+        $notification->markAsRead();
+        return back()->with('refresh', 'refresh');
     }
 
     /**
@@ -82,6 +83,6 @@ class NotificationController extends Controller
     public function destroy($id) {
         $notification = auth()->user()->notifications->find($id);
         $notification->delete();
-        return back();
+        return back()->with('refresh', 'refresh');
     }
 }

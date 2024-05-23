@@ -4,11 +4,13 @@ import { router } from '@inertiajs/react'
 import PrimaryButton from '@/Components/PrimaryButton';
 import DataTable from 'react-data-table-component';
 import SecondaryButton from '@/Components/SecondaryButton';
+import ProfilePic from '@/Components/UserPicture';
+
 
 const columns = [
 	{
 		name: 'Name',
-		selector: row => row.name,
+		selector: row => <ProfilePic username={row.name} imgSrc={"storage/"+ row.image[0].location}></ProfilePic>,
 	},
     {
         cell: (row) => <SecondaryButton onClick={() => handleDelete(row.id)}>Delete</SecondaryButton>,
@@ -29,14 +31,15 @@ export default function Index({ auth, games }) {
 
             <div className="py-12">
                 <div className="max-w-7xl mx-auto sm:px-6 lg:px-8">
-                    <div className="py-6">
-                        <PrimaryButton onClick={() => router.visit(route('games.create'))} id="add-games">Create</PrimaryButton>
-                    </div>
+                    {auth.user.isAdmin != 0 &&
+                        <div className="py-6">
+                            <PrimaryButton onClick={() => router.visit(route('games.create'))} id="add-games">Create</PrimaryButton>
+                        </div>
+                    }
                     <div className="bg-white overflow-hidden shadow-sm sm:rounded-lg">
                         <DataTable
                             columns={columns}
                             data={games}
-                            selectableRows
                             pagination
                         />
                     </div>

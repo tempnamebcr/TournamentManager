@@ -6,6 +6,7 @@ import PrimaryButton from '@/Components/PrimaryButton';
 import SecondaryButton from '@/Components/SecondaryButton';
 import DataTable from 'react-data-table-component';
 import { usePage } from '@inertiajs/react';
+import ProfilePic from '@/Components/UserPicture';
 
 
 export default function Index({ auth, friends, teams}) {
@@ -17,21 +18,21 @@ export default function Index({ auth, friends, teams}) {
     });
     const columns = [
         {
-            name: 'username',
-            selector: row => row.username,
+            name: 'Username',
+            selector: row => <ProfilePic username={row.username} imgSrc={"storage/"+row.image.location} ></ProfilePic>,
         },
         {
-            name: 'level',
-            selector: row => row.level
+            name: 'Level',
+            selector: row => <div class="relative bg-red-500 text-white rounded px-2 py-1">LVL: {row.level}</div>
         },
         {
-            cell: (row) => <SecondaryButton onClick={() => handleDelete(row.id)}>Delete</SecondaryButton>,
+            cell: (row) => <SecondaryButton onClick={() => handleDelete(row.id)}>Remove</SecondaryButton>,
             ignoreRowClick: true,
         },
         {
             cell: (row) =>
                 <div>
-                    <PrimaryButton onClick={() => addToTeam(row.id)}>Add to team</PrimaryButton>
+                    <PrimaryButton id={"btn"+row.id} onClick={() => addToTeam(row.id)}>Add to team</PrimaryButton>
                         <div>
                             <select value={selectedTeam} onChange={(e) => handleTeamChange(row.id, e.target.value)} id={"select"+row.id} style={{display:"none"}}>
                                 <option value="">Select a team</option>
@@ -51,11 +52,14 @@ export default function Index({ auth, friends, teams}) {
     const addToTeam = (id) => {
         setShowDropdown(!showDropdown)
         let select = document.querySelector('#select'+id);
+        let btn = document.querySelector('#btn'+id)
         if (select.style.display == 'none'){
             select.style.display = 'block' ;
+            btn.style.display= 'none';
         }
         else {
             select.style.display = 'none';
+            btn.style.display= 'block';
         }
     };
     const handleTeamChange = (rowId, teamId) => {
@@ -67,6 +71,11 @@ export default function Index({ auth, friends, teams}) {
             post(route('friends.delete', {id : data.id}));
         }
     }, [data.id]);
+    useEffect(() => {
+        if (flash.message) {
+            toastr.success(flash.message);
+        }
+      }, [flash]);
 
     return (
         <AuthenticatedLayout
@@ -77,21 +86,12 @@ export default function Index({ auth, friends, teams}) {
 
             <div className="py-12">
                 <div className="max-w-7xl mx-auto sm:px-6 lg:px-8">
-                    <div className="py-6">
-                        nobutton
-                    </div>
                     <div className="bg-white overflow-hidden shadow-sm sm:rounded-lg">
                         <DataTable
                             columns={columns}
                             data={friends}
-                            selectableRows
                             pagination
                         />
-                        {flash.message && (
-                            <div className="alert alert-success">
-                                {flash.message}
-                            </div>
-                        )}
                     </div>
                 </div>
             </div>

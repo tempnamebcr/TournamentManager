@@ -28,6 +28,10 @@ class Tournament extends Model
     {
         return $this->morphOne(Image::class, 'imageable');
     }
+    public function winner()
+    {
+        return $this->morphTo('winnable')->where('winnable_id', '!=', 0);
+    }
     // protected $dispatchesEvents = [
     //     'created' => TournamentCreated::class,
     // ];

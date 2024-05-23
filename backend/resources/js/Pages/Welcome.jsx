@@ -54,6 +54,13 @@ export default function Welcome({ auth, laravelVersion, phpVersion }) {
                                     <p className="mt-4 text-gray-500 dark:text-gray-400 text-sm leading-relaxed">
                                         Check out our games list. The tournaments will be created from that list
                                     </p>
+                                    <h2 className="mt-6 text-xl font-semibold text-gray-900 dark:text-white">
+                                        Stats
+                                    </h2>
+
+                                    <p className="mt-4 text-gray-500 dark:text-gray-400 text-sm leading-relaxed">
+                                        View your stats and others' on the dashboard, including some reports
+                                    </p>
                                 </div>
                             </a>
                             <a

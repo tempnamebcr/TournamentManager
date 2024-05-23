@@ -7,6 +7,7 @@ use App\Http\Controllers\Controller;
 use App\Models\Team;
 use App\Models\Image;
 use App\Models\TeamPlayer;
+use App\Models\TournamentPlayer;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 use App\Models\User;
@@ -62,6 +63,11 @@ class TeamController extends Controller
     {
         //
     }
+    public function seeMembers(string $id)
+    {
+        $teams = TeamPlayer::join('users', 'team_players.user_id', '=', 'users.id')->join('teams', 'team_players.team_id', '=', 'teams.id')->where('team_id', $id)->get();
+        return back()->with('message', $teams);
+    }
 
     /**
      * Show the form for editing the specified resource.
@@ -84,7 +90,10 @@ class TeamController extends Controller
      */
     public function destroy(string $id)
     {
-        //
+        $team = TournamentPlayer::where('team_id', $id)->where('user_id', auth()->user()->id)->first();
+        $team->delete();
+        return back()
+            ->with('message', 'Left team successfully');
     }
     public function addPlayer(Request $request)
     {
@@ -95,6 +104,6 @@ class TeamController extends Controller
         $team->users()->attach($request->user_id);
         $user = User::find($request->user_id);
         event(new AddedToTeamEvent($user, $team));
-        return back()->with('message', 'Prieten adăugat în echipă cu succes!');
+        return back()->with('message', 'Prieten adaugat cu succes!');
     }
 }

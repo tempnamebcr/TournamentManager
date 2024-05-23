@@ -15,7 +15,7 @@ const UploadPhotoButton = ({ tournament }) => {
   return (
     <div>
       <form onSubmit={handleSubmit} encType="multipart/form-data">
-        <input type="file" onChange={(e) => setData('image',e.target.files[0])} />
+        <input required type="file" onChange={(e) => setData('image',e.target.files[0])} />
         <button type="submit" disabled={processing} className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded mt-2">
           {processing ? 'Processing...' : 'Upload photo'}
         </button>

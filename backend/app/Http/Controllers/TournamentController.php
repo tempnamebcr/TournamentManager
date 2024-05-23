@@ -30,10 +30,15 @@ class TournamentController extends Controller
     public function index()
     {
         $search = request()->search;
-        $tournaments = Tournament::where('name', 'like', "%$search%")
-                             ->orWhere('type', 'like', "%$search%")
-                             ->orderBy('created_at', 'desc')
-                             ->get();
+        $tournaments = Tournament::where(function ($query) use ($search) {
+            $query->where('name', 'like', "%$search%")
+                  ->orWhere('type', 'like', "%$search%");
+        })
+        ->orWhereHas('game', function ($query) use ($search) {
+            $query->where('name', 'like', "%$search%");
+        })
+        ->orderBy('created_at', 'desc')
+        ->get();
         return Inertia::render('Tournaments/Index', ['status' => session('status'), 'games' => Game::all(), 'tournaments' => $tournaments, 'teams' =>auth()->user()->teams]);
     }
 
@@ -94,6 +99,13 @@ class TournamentController extends Controller
     {
         // dd(broadcast(new NewChatMessageEvent("dddddddddd", auth()->user()))->toOthers());
         $tournament = Tournament::where('id', $id)->first();
+        if ($tournament->winnable_id != 0){
+            $winners = TournamentPlayer::join('users', 'tournament_players.user_id', '=', 'users.id')->where('tournament_id', $tournament->id)->get();
+            return back()->with('message', $winners);
+        }
+        if(auth()->user()->currency < $tournament->participation_fee){
+            return back()->with('message', 'Nu aveti destul currency pentru a intra in turneu');
+        }
         if(request()->team_id != null){
             $team = Team::where('id', request()->team_id)->first();
             $tournament_team = TournamentTeam::where('tournament_id', $id)->first();
@@ -186,7 +198,17 @@ class TournamentController extends Controller
      */
     public function destroy(string $id)
     {
-        //
+        if (auth()->user()->can('delete-tournaments')){
+            $tournament = Tournament::where('id', $id)->first();
+            $tournamentTeam = TournamentTeam::where('tournament_id', $tournament->id)->first();
+            if($tournamentTeam == null){
+                $tournament->delete();
+                return back()->with('message', 'Turneu sters cu success');
+            }
+            else {
+                return back()->with('message', 'Nu poti sterge turneul deoarece a inceput sau are echipe inscrise');
+            }
+        }
     }
     public function startTournament(Request $request, $id)
     {
@@ -219,6 +241,7 @@ class TournamentController extends Controller
 
         // }
         $tournament->save();
+        broadcast(new NewChatMessageEvent($tournament->id, auth()->user()));
     }
     public function finishTournament(Request $request, $id){
         $tournament = Tournament::where("id", $id)->first();
@@ -233,10 +256,11 @@ class TournamentController extends Controller
                 'imageable_id' => $tournament->id,
                 'location' => $path,
             ]);
+            $tournament->ended = Carbon::now();
+            $tournament->save();
+            return redirect()->back()->with('message', 'Imaginea a fost incarcata cu success.');
         }
-        $tournament->ended = Carbon::now();
-        $tournament->save();
-        return response()->json(['message' => 'Imaginea a fost încărcată cu succes.']);
+        return redirect()->back()->with('message', 'Incarcati o imagine.');
     }
     public function completedTournament(Request $request, $id){
         $tournament = Tournament::where("id", $id)->first();

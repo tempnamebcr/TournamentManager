@@ -13,6 +13,7 @@ import TimerComponent from '@/Components/TimerComponent';
 import UploadPhotoButton from '@/Components/UploadPhotoButton';
 import { router } from '@inertiajs/react'
 
+
 export default function Single({ tournament, auth, messages, game }) {
     const { data, setData, post, processing, errors, reset } = useForm({
     });
@@ -173,9 +174,6 @@ export default function Single({ tournament, auth, messages, game }) {
                             onInputChange={handleInputChange}
                             method={submitMessage}>
                         </ChatInput>
-                    </div>
-
-                    <div className="p-4 sm:p-8 bg-white shadow sm:rounded-lg">
                     </div>
                 </div>
             </div>

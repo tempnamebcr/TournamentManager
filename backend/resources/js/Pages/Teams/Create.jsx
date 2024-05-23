@@ -5,6 +5,7 @@ import PrimaryButton from '@/Components/PrimaryButton';
 import TextInput from '@/Components/TextInput';
 import { Head, Link, useForm } from '@inertiajs/react';
 import { usePage } from '@inertiajs/react';
+import React, { useState, useEffect } from "react";
 
 
 export default function Create({ auth }) {
@@ -20,6 +21,12 @@ export default function Create({ auth }) {
         console.log(flash);
         post(route('teams.store'));
     };
+
+    useEffect(() => {
+        if (flash.message) {
+            toastr.success(flash.message);
+        }
+      }, [flash]);
 
     return (
         <AuthenticatedLayout
@@ -59,12 +66,6 @@ export default function Create({ auth }) {
                             />
                             <InputError message={errors.image} className="mt-2" />
                         </div>
-
-                        {flash.message && (
-                            <div className="alert alert-success">
-                                {flash.message}
-                            </div>
-                        )}
 
                         <div className="flex items-center justify-end mt-4">
 

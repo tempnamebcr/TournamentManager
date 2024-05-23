@@ -89,4 +89,19 @@ class UserController extends Controller
 
         return response()->json(['banned' => $banned->period > Carbon::now()]);
     }
+    public function fetchBannedPlayers()
+    {
+        $banned = BannedPlayer::all();
+        $banned_list = [];
+        foreach($banned as $ban){
+            if($ban->period > Carbon::now()){
+                $banned_list[] = $ban->user_id;
+            }
+        }
+        if ($banned == null) {
+            return response()->json(['banned_players' => []]);
+        }
+
+        return response()->json(['banned_players' => $banned_list]);
+    }
 }

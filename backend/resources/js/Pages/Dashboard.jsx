@@ -3,6 +3,8 @@ import useLink from '@/Hooks/useLink';
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
 import { Head, usePage } from '@inertiajs/react';
 import moment from 'moment';
+import MyBarChart from '@/Components/Charts/Chart';
+import ProfilePic from '@/Components/UserPicture';
 
 export default function Dashboard({ auth, data }) {
     console.log(data[3])
@@ -73,9 +75,9 @@ export default function Dashboard({ auth, data }) {
             <div className="py-12">
                 <div className="max-w-7xl mx-auto sm:px-6 lg:px-8">
                     <div className="bg-white overflow-hidden shadow-sm sm:rounded-lg">
-                        <div className="p-6 text-gray-900">Welcome, {auth.user.username} {auth.user.image && (
-                            <img src={"storage/"+auth.user.image.location} alt="User Image" width="100" height="100"/>
-                        )} , here are some stats from your previous tournaments:</div>
+                        <div className="p-6 text-gray-900">{auth.user.image && (
+                            <ProfilePic username={auth.user.username} imgSrc={"storage/"+auth.user.image.location} ></ProfilePic>
+                        )}Welcome, here are some stats from your previous tournaments:</div>
                         <div className="p-6 text-gray-900">
                             <span>Level : {auth.user.level} | <b>Currency:</b>{auth.user.currency}<i class="fas fa-money-bill" style={{ color: 'green' }} aria-hidden="true"></i></span>
                             <ExperienceBar experience={exp}></ExperienceBar>
@@ -109,14 +111,13 @@ export default function Dashboard({ auth, data }) {
                         </div>
                         <div className="p-6 text-gray-900">
                             <span>Some stats about the other players: </span>
-                            <span>Best KDA ratio: {data[5]} average score: {data[7]} user: {data[6]}</span>
                         </div>
-                        <div className="p-6 text-gray-900">
-                            <span>Biggest winner : {data[9]} with : {data[8]}<i class="fas fa-money-bill" style={{ color: 'green' }} aria-hidden="true"></i></span>
+                        <div className="p-6 text-gray-900 flex">
+                            <MyBarChart userlabel={"Most wins"}  userlabels={[auth.user.username, data[11]]} userdata={[data[12], data[10]]}></MyBarChart>
+                            <MyBarChart userlabel={"Biggest wins(currency)"}  userlabels={[auth.user.username, data[9]]} userdata={[data[0], data[8]]}></MyBarChart>
+                            <MyBarChart userlabel={"Best KDA"}  userlabels={[auth.user.username, data[6]]} userdata={[kdaRatio.toFixed(2), data[5]]}></MyBarChart>
                         </div>
-                        <div className="p-6 text-gray-900">
-                            <span>Most wins : {data[10]} user : {data[11]}</span>
-                        </div>
+
                     </div>
                 </div>
             </div>

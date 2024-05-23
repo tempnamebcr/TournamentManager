@@ -65,7 +65,6 @@ export default function Random({ tournament, auth, messages, game, team, firstTe
                 });
             })
             .listen('.chat-message', (e)=>{
-                console.log('chat-message-cu-punct')
                 let newMessage = {
                     body:e.message.body,
                     user:e.user
@@ -75,6 +74,9 @@ export default function Random({ tournament, auth, messages, game, team, firstTe
                 messages.push(newMessage)
                 console.log(users);
             })
+            .listen('.started', (e) => {
+                location.reload()
+            });
         }
         listenChat();
         return() => {

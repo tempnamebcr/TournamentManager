@@ -9,10 +9,15 @@ class Team extends Model
 {
     use HasFactory;
     protected $fillable = ['name', 'games_won'];
-    protected $with = ['users'];
+    protected $with = ['users', 'image'];
 
     public function users()
     {
         return $this->belongsToMany(User::class, 'team_players');
     }
+    public function image()
+    {
+        return $this->morphOne(Image::class, 'imageable');
+    }
+
 }
