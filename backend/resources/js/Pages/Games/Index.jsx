@@ -7,13 +7,15 @@ import SecondaryButton from '@/Components/SecondaryButton';
 import ProfilePic from '@/Components/UserPicture';
 
 
+export default function Index({ auth, games }) {
+
 const columns = [
 	{
 		name: 'Name',
 		selector: row => <ProfilePic username={row.name} imgSrc={"storage/"+ row.image[0].location}></ProfilePic>,
 	},
     {
-        cell: (row) => <SecondaryButton onClick={() => handleDelete(row.id)}>Delete</SecondaryButton>,
+        cell: (row) => (auth.user.isAdmin ? <SecondaryButton onClick={() => handleDelete(row.id)}>Delete</SecondaryButton> : ''),
         ignoreRowClick: true,
     },
 ];
@@ -21,7 +23,6 @@ const handleDelete = (id) => {
     console.log('Row with ID:', id, 'deleted');
 };
 
-export default function Index({ auth, games }) {
     return (
         <AuthenticatedLayout
             user={auth.user}

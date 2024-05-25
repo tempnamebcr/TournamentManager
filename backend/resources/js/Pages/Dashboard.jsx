@@ -7,7 +7,6 @@ import MyBarChart from '@/Components/Charts/Chart';
 import ProfilePic from '@/Components/UserPicture';
 
 export default function Dashboard({ auth, data }) {
-    console.log(data[3])
     useLink("stylesheet", "https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css")
     const { averageKills, averageDeaths, averageAssists, kdaRatio } = calculateAverageAndKda(data[3]);
     function calculateAverageAndKda(data) {

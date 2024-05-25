@@ -1,7 +1,7 @@
 import React from 'react';
 
 export default function ExperienceBar ({experience}) {
-    const maxExperience = 1000;
+    const maxExperience = 500;
 
     const experiencePercentage = (experience / maxExperience) * 100;
     const barStyles = {

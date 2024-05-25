@@ -2,8 +2,10 @@
 
 namespace App\Http\Controllers\Admin;
 
+use App\Events\ReportedEvent;
 use App\Http\Controllers\Controller;
 use App\Models\BannedPlayer;
+use App\Models\Report;
 use App\Models\User;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
@@ -30,6 +32,20 @@ class UserController extends Controller
     public function create()
     {
         //
+    }
+    public function report($id)
+    {
+        Report::insert([
+            'reason' => request()->reasonForReport,
+            'user_id' => $id
+        ]);
+        $user = User::where('id', $id)->first();
+        event(new ReportedEvent($user));
+        return back()->with('message', 'Utilizator raportat cu success');
+    }
+    public function numberOfReports($id)
+    {
+        return Report::where('user_id', $id)->get()->count();
     }
 
     /**

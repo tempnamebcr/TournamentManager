@@ -17,6 +17,7 @@ export default function Index({ auth, tournaments, teams }) {
     const { flash } = usePage().props
     const [banned, setIsBanned] = useState(false);
     const [showDropdown, setShowDropdown] = useState(false);
+    const [orderBy, setOrderBy] = useState(null);
     const [search, setSearch] = useState('');
     const columns = [
         {
@@ -52,6 +53,17 @@ export default function Index({ auth, tournaments, teams }) {
             ignoreRowClick: true,
         },
         {
+            name: auth.user.isAdmin ? 'Edit' : 'Prize',
+            cell: (row) => (
+
+                auth.user.isAdmin ?
+                <PrimaryButton disabled={row.winnable_id!=0}onClick={() => handleEdit(row.id)}>Edit</PrimaryButton>
+                :
+                <div className="text-md font-semibold py-2">{row.prize}</div>
+            )
+        },
+        {
+            name: 'Action',
             cell: (row) => row.type != "Team" ?
                 <PrimaryButton onClick={() => router.visit(route('tournaments.show', row.id))} title={banned ? "You are currently banned" : ''}disabled={banned ||(today>new Date(row.date)&&row.winnable_id ==0)}>{row.winnable_id == 0 ? "Join" : "See winner"}</PrimaryButton>
                 // <PrimaryButton onClick={() => router.visit(route('tournaments.show', row.id))} title={banned ? "You are currently banned" : ''}disabled={banned|| (today.getTime() > new Date(row.date.split(/\s+/)[0]).getTime())}>Join</PrimaryButton>
@@ -59,20 +71,23 @@ export default function Index({ auth, tournaments, teams }) {
                     <PrimaryButton id={"btn"+row.id } onClick={() => selectTeam(row.id)} disabled={banned|| (today>new Date(row.date)&&row.winnable_id ==0)}>{row.winnable_id == 0 ? "Join" : "See winner"}</PrimaryButton>
                     {/* <PrimaryButton onClick={() => selectTeam(row.id)} disabled={banned || (today.getTime() > new Date(row.date.split(/\s+/)[0]).getTime())}>Join</PrimaryButton> */}
                         <div>
-                            <select onChange={(e) => handleTeamChange(row.id, e.target.value)} id={"select"+row.id} style={{display:"none"}}>
-                                <option value="">Select a team</option>
+                            <select className="mt-1 block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm rounded-md" onChange={(e) => handleTeamChange(row.id, e.target.value)} id={"select"+row.id} style={{display:"none"}}>
+                                <option  value="">Select a team</option>
                                 {teams.map(team => (
                                     <option key={team.id} value={team.id} >{team.name}</option>
                                 ))}
                             </select>
                         </div>
                     </div>
-        },
+        }
 
 
     ];
     const handleDelete = (id) => {
         router.delete(route('tournaments.destroy', [id]))
+    };
+    const handleEdit = (id) => {
+        router.visit(route('tournaments.edit', id))
     };
     const logstuff = (date) => {
         console.log(currentTime.getTime());
@@ -82,7 +97,10 @@ export default function Index({ auth, tournaments, teams }) {
         setSearch(event.target.value);
     };
     const handleSearch = () => {
-        router.get('/tournaments', { search });
+        router.get('/tournaments', { search, orderBy });
+    };
+    const handleOrderChange = (event) => {
+        router.get('/tournaments', { search, orderBy:event.target.value });
     };
     const selectTeam = (id) => {
         setShowDropdown(!showDropdown)
@@ -133,7 +151,6 @@ export default function Index({ auth, tournaments, teams }) {
             toastr.error(flash.message);
             ok = false;
         }
-        console.log(flash)
         const fetchIsBanned = async () => {
             try {
                 const response = await axios.get(`/users/${auth.user.id}/is-banned`);
@@ -144,8 +161,12 @@ export default function Index({ auth, tournaments, teams }) {
         };
         const urlParams = new URLSearchParams(window.location.search);
         const searchParam = urlParams.get('search');
+        const orderParam = urlParams.get('orderBy');
         if (searchParam) {
             setSearch(searchParam);
+        }
+        if (orderParam) {
+            setOrderBy(orderParam);
         }
 
 
@@ -175,6 +196,17 @@ export default function Index({ auth, tournaments, teams }) {
                             onChange={handleSearchChange}
                         />
                         <PrimaryButton onClick={handleSearch}>Search</PrimaryButton>
+                        <select
+                            className='block pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm rounded-md'
+                            id="orderBy"
+                            value={orderBy}
+                            onChange={handleOrderChange}
+                        >
+                            <option value="">Order by...</option>
+                            <option value="Date">Date</option>
+                            <option value="participation_fee">Entry Fee</option>
+                            <option value="Prize">Prize</option>
+                        </select>
                     </div>
                     <div className="bg-white overflow-hidden shadow-sm sm:rounded-lg">
                         <DataTable

@@ -30,6 +30,7 @@ class TournamentController extends Controller
     public function index()
     {
         $search = request()->search;
+        $orderBy = request()->orderBy;
         $tournaments = Tournament::where(function ($query) use ($search) {
             $query->where('name', 'like', "%$search%")
                   ->orWhere('type', 'like', "%$search%");
@@ -37,7 +38,7 @@ class TournamentController extends Controller
         ->orWhereHas('game', function ($query) use ($search) {
             $query->where('name', 'like', "%$search%");
         })
-        ->orderBy('created_at', 'desc')
+        ->orderBy($orderBy == '' ? 'created_at' : $orderBy , 'desc')
         ->get();
         return Inertia::render('Tournaments/Index', ['status' => session('status'), 'games' => Game::all(), 'tournaments' => $tournaments, 'teams' =>auth()->user()->teams]);
     }
@@ -64,7 +65,7 @@ class TournamentController extends Controller
         }
         else if ($request->type == "Team") {
             $winnable_type = "App\Models\Team";
-            $prize = $request->fee * 9;
+            $prize = $request->fee * 3.6;
         }
         else {
             $winnable_type = "App\Models\RandomTournamentTeam";
@@ -100,7 +101,7 @@ class TournamentController extends Controller
         // dd(broadcast(new NewChatMessageEvent("dddddddddd", auth()->user()))->toOthers());
         $tournament = Tournament::where('id', $id)->first();
         if ($tournament->winnable_id != 0){
-            $winners = TournamentPlayer::join('users', 'tournament_players.user_id', '=', 'users.id')->where('tournament_id', $tournament->id)->get();
+            $winners = TournamentPlayer::join('users', 'tournament_players.user_id', '=', 'users.id')->where('tournament_id', $tournament->id)->where('tournament_players.amount_won', '!=', 0)->get();
             return back()->with('message', $winners);
         }
         if(auth()->user()->currency < $tournament->participation_fee){
@@ -165,7 +166,13 @@ class TournamentController extends Controller
      */
     public function edit(string $id)
     {
-        //
+        $tournament = Tournament::where('id', $id)->first();
+        $games = Game::all();
+        return Inertia::render('Tournaments/Edit', [
+            'status' => session('status'),
+            'tournament' => $tournament,
+            'games' => $games,
+        ]);
     }
     public function message(Request $request, $id)
     {
@@ -186,7 +193,37 @@ class TournamentController extends Controller
      */
     public function update(Request $request, string $id)
     {
-        //
+        if ($request->type == 'Single') {
+            $winnable_type = "App\Models\User";
+            $prize = $request->fee * 1.9;
+        }
+        else if ($request->type == "Team") {
+            $winnable_type = "App\Models\Team";
+            $prize = $request->fee * 3.6;
+        }
+        else {
+            $winnable_type = "App\Models\RandomTournamentTeam";
+            $prize = $request->fee * 3.6;
+        }
+        $pattern = '/^(\d{4})-(\d{2})-(\d{2})T(\d{2}):(\d{2}):(\d{2})\.\d+Z$/';
+        if (preg_match($pattern, $request->date, $matches)) {
+            $formattedDate = $matches[1] . '-' . $matches[2] . '-' . $matches[3] . ' ' . $matches[4] . ':' . $matches[5] . ':' . $matches[6];
+        }
+        $tournament = Tournament::where('id', $request->tournament)->first();
+        $tournament->update([
+            'name' => $request->name,
+            'game_id' => $request->game,
+            'date' => preg_match($pattern, $request->date, $matches) ? $formattedDate : $tournament->date,
+            'hour' => $request->hour,
+            'participation_fee' => $request->fee,
+            'type' => $request->type,
+            'winnable_id' => 0,
+            'admin_id' => auth()->user()->id,
+            'prize' => $prize,
+            'winnable_type' => $winnable_type,
+            'is_recurrent' => $request->is_recurrent,
+        ]);
+        return back()->with('message', 'Turneul a fost editat cu succes!');
     }
     public function getCount(Request $request)
     {
@@ -333,7 +370,7 @@ class TournamentController extends Controller
             }
             $user->experience+=100;
             if ($user->experience >= 500){
-                $user->experience = 0;
+                $user->experience = 50;
                 $user->level +=1;
                 //event new lvl up
             }

@@ -115,6 +115,8 @@ Route::middleware('auth')->group(function () {
 });
 
 Route::post('users/ban/{id}', [UserController::class, 'ban'])->name('users.ban');
+Route::get('users/report/{id}', [UserController::class, 'report'])->name('users.report');
+Route::get('users/numberOfReports/{id}', [UserController::class, 'numberOfReports'])->name('users.numberOfReports');
 Route::get('users/{id}/is-banned', [UserController::class, 'isBanned'])->name('users.is-banned');
 Route::get('users/fetch-banned', [UserController::class, 'fetchBannedPlayers'])->name('users.fetch-banned');
 Route::resource('users', UserController::class);
@@ -139,7 +141,7 @@ Route::post('/tournaments/{id}/getCount', [TournamentController::class, 'getCoun
 Route::post('/tournaments/{id}/givePrizes', [TournamentController::class, 'givePrizes'])->name('tournaments.givePrizes');
 Route::resource('tournaments', TournamentController::class);
 Route::get('permissions/initial', [RoleController::class, 'initial'])->name('permissions.initial');
-Route::resource('permissions', RoleController::class); 
+Route::resource('permissions', RoleController::class);
 Route::post('teams/addPlayer', [TeamController::class, 'addPlayer'])->name('teams.addPlayer');
 Route::get('/teams/{id}/seeMembers', [TeamController::class, 'seeMembers'])->name('teams.seeMembers');
 Route::resource('teams', TeamController::class);

@@ -7,10 +7,11 @@ import SecondaryButton from '@/Components/SecondaryButton';
 import DataTable from 'react-data-table-component';
 import InputLabel from '@/Components/InputLabel';
 import ProfilePic from '@/Components/UserPicture';
-
+import { usePage } from '@inertiajs/react';
 
 export default function Index({ auth, users, friends, reqSentTo, pending }) {
     const [currRoute, setCurrRoute] = useState('');
+    const { flash } = usePage().props
     const { data, setData, post, processing, errors, reset } = useForm({
         id: 0,
         // reason: ''
@@ -19,15 +20,24 @@ export default function Index({ auth, users, friends, reqSentTo, pending }) {
     const [search, setSearch] = useState('');
     const columns = [
         {
-            name: 'username',
+            name: 'Username',
             selector: row => <ProfilePic username={row.username} imgSrc={"storage/"+row.image.location} ></ProfilePic>,
         },
         {
-            name: 'level',
+            name: 'Level',
             selector: row => <div class="ms-3 relative bg-red-500 text-white rounded px-2 py-1">LVL: {row.level}</div>
         },
         {
-            cell: (row) => <SecondaryButton title={bannedUsers.includes(row.id) ? "Already banned" : ''}disabled={bannedUsers.includes(row.id)}onClick={() => handleDelete(row.id)}>Ban</SecondaryButton>,
+            cell: (row) => (auth.user.isAdmin ? <SecondaryButton title={bannedUsers.includes(row.id) ? "Already banned" : ''}disabled={bannedUsers.includes(row.id)}onClick={() => handleDelete(row.id)}>Ban</SecondaryButton> :
+            <div>
+                <SecondaryButton id={"btn"+row.id}onClick={() => handleReport(row.id)}>Report</SecondaryButton>
+                <select onChange={(e) => handleReasonChange(row.id, e.target.value)} id={"select"+row.id} style={{display:"none"}}>
+                    <option value="">Select a reason</option>
+                    <option>Leaving game</option>
+                    <option>Toxicity</option>
+                    <option>Cheating</option>
+                </select>
+            </div>),
             ignoreRowClick: true,
         },
         {
@@ -58,6 +68,27 @@ export default function Index({ auth, users, friends, reqSentTo, pending }) {
         setData('id', id);
     };
 
+    const handleReasonChange = (id, reason) => {
+        router.visit(route('users.report', [id, {reasonForReport :reason}]))
+        Swal.fire({
+            title: 'Utilizator raportat',
+            confirmButtonText: 'Okay',
+          })
+    };
+
+    const handleReport = (id) => {
+        let select = document.querySelector('#select'+id);
+        let btn = document.querySelector('#btn'+id)
+        if (btn.style.display != 'none'){
+            select.style.display = 'block' ;
+            btn.style.display= 'none';
+        }
+        else {
+            select.style.display = 'none';
+            btn.style.display= 'block';
+        }
+    };
+
     // const handleInputChange = (event) => {
     //     setData('reason', event.target.value);
     // };
@@ -72,18 +103,16 @@ export default function Index({ auth, users, friends, reqSentTo, pending }) {
         setData('id', id);
     };
 
-    const handleDelete = (id) => {
+    const handleDelete = async (id) => {
+        let reasons = await axios.get(route('users.numberOfReports', {id:id}));
+        console.log(reasons);
         Swal.fire({
             title: 'Are you sure?',
             icon: 'warning',
-            // html: `<input id="swal-input1" class="swal2-input" placeholder="Enter reason" onInput={(event) => setData('reason', event.target.value)}>`,
+            text: 'Number of reports: ' + reasons.data ,
             showCancelButton: true,
             confirmButtonText: 'Yes',
             cancelButtonText: 'No',
-            preConfirm: () => {
-                // let reas = document.getElementById('swal-input1').value;
-                // setData('reason' , reas);
-            }
           }).then((result) => {
             if (result.isConfirmed) {
               setCurrRoute('ban');
@@ -106,6 +135,9 @@ export default function Index({ auth, users, friends, reqSentTo, pending }) {
     };
 
     useEffect(() => {
+        // if (flash.message) {
+        //     toastr.success(flash.message);
+        // }
         const fetchBannedUsers= async () => {
             try {
                 const response = await axios.get(`/users/fetch-banned`);
@@ -131,7 +163,7 @@ export default function Index({ auth, users, friends, reqSentTo, pending }) {
         }
         const urlParams = new URLSearchParams(window.location.search);
         const searchParam = urlParams.get('search');
-        if (searchParam) {
+        if (searchParam && ok) {
             setSearch(searchParam);
         }
     }, [data.id]);
@@ -139,7 +171,7 @@ export default function Index({ auth, users, friends, reqSentTo, pending }) {
     return (
         <AuthenticatedLayout
             user={auth.user}
-            header={<h2 className="font-semibold text-xl text-gray-800 leading-tight">users</h2>}
+            header={<h2 className="font-semibold text-xl text-gray-800 leading-tight">Users</h2>}
         >
             <Head title="Users" />
 

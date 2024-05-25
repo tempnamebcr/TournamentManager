@@ -50,12 +50,20 @@ const textForMembers = (members) => {
 }
 
 useEffect(() => {
-    if(flash.message){
+    if(flash.message && typeof flash.message === 'object'){
         let teamMembers = textForMembers(flash.message);
         Swal.fire({
             title: 'Members',
             html: '<pre>' + teamMembers + '</pre>',
             text: teamMembers,
+            confirmButtonText: 'Ok',
+          }).then((result) => {
+
+          })
+    }
+    else if(flash.message && typeof flash.message !== 'object'){
+        Swal.fire({
+            title: 'Ai iesit',
             confirmButtonText: 'Ok',
           }).then((result) => {
 

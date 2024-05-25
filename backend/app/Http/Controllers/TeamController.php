@@ -90,7 +90,7 @@ class TeamController extends Controller
      */
     public function destroy(string $id)
     {
-        $team = TournamentPlayer::where('team_id', $id)->where('user_id', auth()->user()->id)->first();
+        $team = TeamPlayer::where('team_id', $id)->where('user_id', auth()->user()->id)->first();
         $team->delete();
         return back()
             ->with('message', 'Left team successfully');
