@@ -92,7 +92,7 @@ Route::get('/dashboard', function () {
     $data = [
         $amount_won = TournamentPlayer::where('user_id', auth()->user()->id)->sum('amount_won'),
         $fee_paid = TournamentPlayer::where('user_id', auth()->user()->id)->sum('fee_paid'),
-        $tournamentIds = TournamentPlayer::with('tournament')->where('user_id', auth()->user()->id)->orderBy('id', 'desc')->get(),
+        $tournamentIds = TournamentPlayer::with('tournament')->where('user_id', auth()->user()->id)->orderBy('id', 'desc')->take(5)->get(),
         $stats = TournamentPlayer::where('user_id', auth()->user()->id)->get('final_score'),
         $currency = auth()->user()->currency,
         $max, //max kda
@@ -133,6 +133,7 @@ Route::get('notifications/markAsRead/{id}', [NotificationController::class, 'mar
 // Route::resource('notifications', NotificationController::class);
 Route::resource('games', GameController::class);
 Route::post('/tournaments/{id}/message', [TournamentController::class, 'message'])->name('tournaments.message');
+Route::get('/tournaments/{id}/getTournamentTeam', [TournamentController::class, 'getTournamentTeam'])->name('tournaments.getTournamentTeam');
 Route::post('/tournaments/{id}/startTournament', [TournamentController::class, 'startTournament'])->name('tournaments.startTournament');
 Route::post('/tournaments/{id}/finishTournament', [TournamentController::class, 'finishTournament'])->name('tournaments.finishTournament');
 Route::get('/tournaments/{id}/completedTournament', [TournamentController::class, 'completedTournament'])->name('tournaments.completedTournament');

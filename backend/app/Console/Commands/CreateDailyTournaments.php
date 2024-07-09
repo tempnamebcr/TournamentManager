@@ -22,7 +22,7 @@ class CreateDailyTournaments extends Command
      *
      * @var string
      */
-    protected $description = 'Command description';
+    protected $description = 'Create tournaments daily';
 
     /**
      * Execute the console command.
@@ -40,7 +40,7 @@ class CreateDailyTournaments extends Command
             'admin_id' => 1,
             'prize' => 50,
             'winnable_type' => User::class,
-            'is_recurrent' => 1,
+            'is_recurrent' => 0,
         ]);
     }
 }

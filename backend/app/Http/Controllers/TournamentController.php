@@ -90,7 +90,7 @@ class TournamentController extends Controller
         ]);
         //for pusher
         event(new TournamentCreated($tournament));
-        return back()->with('message', 'Turneul a fost creat cu succes!');
+        return back()->with('message', 'Tournament created successfuly!');
     }
 
     /**
@@ -120,6 +120,9 @@ class TournamentController extends Controller
                     'third_user_id' => null,
                     'fourth_user_id' => null,
                 ]);
+            }
+            else if($tournament_team->first_user_id != null && $tournament_team->second_user_id != null && $tournament_team->third_user_id != null && $tournament_team->fourth_user_id != null){
+                //do nothing
             }
             else if ($tournament_team->second_team_id == null && request()->team_id != $tournament_team->first_team_id){
                 $tournament_team->update([
@@ -223,7 +226,7 @@ class TournamentController extends Controller
             'winnable_type' => $winnable_type,
             'is_recurrent' => $request->is_recurrent,
         ]);
-        return back()->with('message', 'Turneul a fost editat cu succes!');
+        return back()->with('message', 'Tournament edited successfully!');
     }
     public function getCount(Request $request)
     {
@@ -240,10 +243,10 @@ class TournamentController extends Controller
             $tournamentTeam = TournamentTeam::where('tournament_id', $tournament->id)->first();
             if($tournamentTeam == null){
                 $tournament->delete();
-                return back()->with('message', 'Turneu sters cu success');
+                return back()->with('message', 'Tournament deleted successfuly');
             }
             else {
-                return back()->with('message', 'Nu poti sterge turneul deoarece a inceput sau are echipe inscrise');
+                return back()->with('message', 'Cannot delete tournament because players have joined it');
             }
         }
     }
@@ -254,20 +257,19 @@ class TournamentController extends Controller
         // dd($request);
         $users = $request->users;
         //todo take the fee from the players
-
         if ($tournament->type == "Random"){
             RandomTournamentTeam::create(
                 [
                     "tournament_id"=> $tournament->id,
-                    "first_user_id" => 0,
-                    "second_user_id" => 0,
+                    "first_user_id" => (int)$users[0]['id'],
+                    "second_user_id" => (int)$users[1]['id'],
                 ]
             );
             RandomTournamentTeam::create(
                 [
                     "tournament_id"=> $tournament->id,
-                    "first_user_id" => 0,
-                    "second_user_id" => 0,
+                    "first_user_id" => (int)$users[2]['id'],
+                    "second_user_id" => (int)$users[3]['id'],
                 ]
             );
         }
@@ -278,6 +280,7 @@ class TournamentController extends Controller
 
         // }
         $tournament->save();
+        //sigur era asta aici?
         broadcast(new NewChatMessageEvent($tournament->id, auth()->user()));
     }
     public function finishTournament(Request $request, $id){
@@ -295,9 +298,9 @@ class TournamentController extends Controller
             ]);
             $tournament->ended = Carbon::now();
             $tournament->save();
-            return redirect()->back()->with('message', 'Imaginea a fost incarcata cu success.');
+            return redirect()->back()->with('message', 'Image uploaded.');
         }
-        return redirect()->back()->with('message', 'Incarcati o imagine.');
+        return redirect()->back()->with('message', 'Upload an image.');
     }
     public function completedTournament(Request $request, $id){
         $tournament = Tournament::where("id", $id)->first();
@@ -316,7 +319,7 @@ class TournamentController extends Controller
             array_push($teams, $second_team);
         }
         //todo daca nu esti admin sau nu s-a finalizat turneul, n-ai voie pe ruta
-        return Inertia::render('Tournaments/Completed', ['tournament' => $tournament, 'users' => $users, 'teams'=>$teams, 'random_teams'=>$random_teams]);
+        return Inertia::render('Tournaments/Completed', ['tournament' => $tournament, 'users' => $users, 'teams'=>$teams, 'randomTeams'=>$random_teams]);
     }
     public function givePrizes(Request $request, $id){
         $users = $request->users;
@@ -358,7 +361,7 @@ class TournamentController extends Controller
                     'tournament_id' => $tournament->id,
                     'final_score' => $usr['value'],
                     'fee_paid' => $tournament->participation_fee,
-                    'amount_won' => intval($usr['id']) == intval($request->winner) ? $tournament->prize : 0
+                    'amount_won' => (in_array(intval($usr['id']), $array_of_winners)) ? $tournament->prize : 0
                 ]
             );
             $user = User::where('id', $usr['id'])->first();
@@ -370,13 +373,17 @@ class TournamentController extends Controller
             }
             $user->experience+=100;
             if ($user->experience >= 500){
-                $user->experience = 50;
+                $user->experience = 100;
                 $user->level +=1;
                 //event new lvl up
             }
             $user->save();
         }
-        return Inertia::render('Dashboard');
+        return Inertia::location(route('dashboard'));
         //todo notifications, maybe on level up
+    }
+
+    public function getTournamentTeam($id){
+        return TournamentTeam::where('tournament_id', $id)->first();
     }
 }

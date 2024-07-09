@@ -15,9 +15,8 @@ import TimePicker from 'react-time-picker';
 
 
 export default function Completed({ auth, games, tournament, users, teams, randomTeams }) {
-
+    console.log(randomTeams);
     const { flash } = usePage().props
-    console.log(teams)
     const { data, setData, post, processing, errors, reset } = useForm({
         tournament:tournament,
         users:[],
@@ -70,8 +69,10 @@ export default function Completed({ auth, games, tournament, users, teams, rando
                                 {teams && teams.map(team => (
                                     <option value={team.id}>{team.name}</option>
                                 ))}
-                                {randomTeams!=null && randomTeams.map(randomTeam, i => (
-                                    <option value={randomTeam.id}>{i == 0 && "First"}{i==1 && "Second"}</option>
+                                {randomTeams != null && randomTeams.map((randomTeam, i) => (
+                                    <option key={randomTeam.id} value={randomTeam.id}>
+                                        {i === 0 && "First"}{i === 1 && "Second"}
+                                    </option>
                                 ))}
                             </select>
 

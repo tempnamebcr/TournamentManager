@@ -71,7 +71,7 @@ export default function Index({ auth, users, friends, reqSentTo, pending }) {
     const handleReasonChange = (id, reason) => {
         router.visit(route('users.report', [id, {reasonForReport :reason}]))
         Swal.fire({
-            title: 'Utilizator raportat',
+            title: 'User reported',
             confirmButtonText: 'Okay',
           })
     };
@@ -163,7 +163,7 @@ export default function Index({ auth, users, friends, reqSentTo, pending }) {
         }
         const urlParams = new URLSearchParams(window.location.search);
         const searchParam = urlParams.get('search');
-        if (searchParam && ok) {
+        if (searchParam) {
             setSearch(searchParam);
         }
     }, [data.id]);

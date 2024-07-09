@@ -36,15 +36,16 @@ class RegisteredUserController extends Controller
     {
 
         $request->validate([
-            'name' => 'required|string|max:255',
+            // 'name' => 'required|string|max:255',
             'email' => 'required|string|lowercase|email|max:255|unique:'.User::class,
             'username' => 'required|unique:'.User::class,
             'password' => ['required', 'confirmed', Rules\Password::defaults()],
         ]);
         $user = User::create([
-            'name' => $request->name,
+            'name' => '',
             'email' => $request->email,
             'username' => $request->username,
+            'experience' => 100,
             'password' => Hash::make($request->password),
         ]);
         if ($request->hasFile('image')) {

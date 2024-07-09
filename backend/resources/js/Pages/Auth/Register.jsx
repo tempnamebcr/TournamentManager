@@ -33,7 +33,7 @@ export default function Register() {
             <Head title="Register" />
 
             <form onSubmit={submit} encType="multipart/form-data">
-                <div>
+                {/* <div>
                     <InputLabel htmlFor="name" value="Name" />
 
                     <TextInput
@@ -48,7 +48,7 @@ export default function Register() {
                     />
 
                     <InputError message={errors.name} className="mt-2" />
-                </div>
+                </div> */}
 
                 <div>
                     <InputLabel htmlFor="username" value="Username" />

@@ -41,7 +41,7 @@ class UserController extends Controller
         ]);
         $user = User::where('id', $id)->first();
         event(new ReportedEvent($user));
-        return back()->with('message', 'Utilizator raportat cu success');
+        return back()->with('message', 'User reported successfuly!');
     }
     public function numberOfReports($id)
     {

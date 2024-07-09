@@ -25,8 +25,11 @@ export default function Dashboard({ auth, data }) {
         const averageKills = totalKills / gamesPlayed;
         const averageDeaths = totalDeaths / gamesPlayed;
         const averageAssists = totalAssists / gamesPlayed;
-
-        const kdaRatio = (totalKills + totalAssists) / totalDeaths;
+        let deaths = 1
+        if (totalDeaths != 0){
+            deaths = totalDeaths
+        }
+        const kdaRatio = (totalKills + totalAssists) / deaths;
 
         return {
             averageKills,
@@ -88,7 +91,7 @@ export default function Dashboard({ auth, data }) {
                             <span><b>Currency</b> paid on fees : {data[1]}<i class="fas fa-money-bill" style={{ color: 'green' }} aria-hidden="true"></i></span>
                         </div>
                         <div className="p-6 text-gray-900">
-                            <span>Average score : {averageKills + "/" + averageDeaths + "/" + averageAssists} | KDA: {kdaRatio.toFixed(2)}</span>
+                            <span>Average score : { !isNaN(averageKills) ? averageKills.toFixed(2) + "/" + averageDeaths.toFixed(2) + "/" + averageAssists.toFixed(2) : "0/0/0"} | KDA: {!isNaN(kdaRatio) ? kdaRatio.toFixed(2) : '0/0/0'}</span>
                         </div>
                         <div className="p-6 text-gray-900">
                             {!data[2] && <p>No tournament history</p>}

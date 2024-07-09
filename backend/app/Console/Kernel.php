@@ -12,9 +12,9 @@ class Kernel extends ConsoleKernel
      */
     protected function schedule(Schedule $schedule): void
     {
-        // $schedule->command('inspire')->hourly();
-        $schedule->command('app:create-daily-tournaments')->everyMinute();
-        $schedule->command('app:create-recurrent-tournaments')->everyDay();
+        $schedule->command('app:create-daily-tournaments')->daily();
+        $schedule->command('app:create-recurrent-tournaments')->daily();
+        $schedule->command('app:delete-empty-teams')->everyMinute();
     }
 
     /**

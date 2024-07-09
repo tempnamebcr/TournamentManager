@@ -63,7 +63,7 @@ useEffect(() => {
     }
     else if(flash.message && typeof flash.message !== 'object'){
         Swal.fire({
-            title: 'Ai iesit',
+            title: 'You left',
             confirmButtonText: 'Ok',
           }).then((result) => {
 

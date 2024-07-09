@@ -29,8 +29,6 @@ export default function TeamShow({ tournament, auth, messages, game, team, first
         clasaCuloare = 'text-red-500';
         valid=false;
     }
-    console.log(tournament.type)
-    console.log(currentTournamentTeam)
 
     let [stateMessage, setStateMessage] = useState(messages);
     const [body, setBody] = useState('');
@@ -57,15 +55,14 @@ export default function TeamShow({ tournament, auth, messages, game, team, first
                 });
             })
             .joining((user) => {
+
                 setUsers(prevUsers => {
-                    console.log(user)
                     const updatedUsers = [...prevUsers, user];
                     setActiveCount(updatedUsers.length);
                     return updatedUsers;
                 });
             })
             .listen('.chat-message', (e)=>{
-                console.log('chat-message-cu-punct')
                 let newMessage = {
                     body:e.message.body,
                     user:e.user
@@ -73,7 +70,6 @@ export default function TeamShow({ tournament, auth, messages, game, team, first
                 const updatedMessages = [...messages, newMessage];
                 setStateMessage(updatedMessages);
                 messages.push(newMessage)
-                console.log(users);
             })
         }
         listenChat();
@@ -122,7 +118,7 @@ export default function TeamShow({ tournament, auth, messages, game, team, first
                         <TournamentUsers users={users} />
                     </div>
 
-                    <div className="p-4 sm:p-8 bg-white shadow sm:rounded-lg h-128">
+                    <div className="p-4 sm:p-8 bg-white shadow sm:rounded-lg" style={{ height: '40rem' }}>
                         <span>{tournament.type}</span>
                         <div className="flex">
                             <div className="mx-auto my-0">
@@ -149,7 +145,7 @@ export default function TeamShow({ tournament, auth, messages, game, team, first
                         { firstTeam &&
                             <Team
                                 users={users.filter((user) =>
-                                    user.id !== currentTournamentTeam.third_user_id || user.id !== currentTournamentTeam.fourth_user_id
+                                    user.id === currentTournamentTeam.first_user_id || user.id === currentTournamentTeam.second_user_id
                                 )}
                                 team={firstTeam}
                             />

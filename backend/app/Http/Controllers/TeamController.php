@@ -53,7 +53,7 @@ class TeamController extends Controller
             ]);
         }
         $team->users()->attach(auth()->user()->id);
-        return back()->with('message', 'Echipa a fost creata cu succes!');
+        return back()->with('message', 'Team created successfuly!');
     }
 
     /**
@@ -99,11 +99,11 @@ class TeamController extends Controller
     {
         $team = Team::find($request->team_id);
         if ($team->users()->where('user_id', $request->user_id)->exists()) {
-            return back()->with('message', 'Utilizatorul este deja în echipa!');
+            return back()->with('message', 'User already in team!');
         }
         $team->users()->attach($request->user_id);
         $user = User::find($request->user_id);
         event(new AddedToTeamEvent($user, $team));
-        return back()->with('message', 'Prieten adaugat cu succes!');
+        return back()->with('message', 'Friend added!');
     }
 }
